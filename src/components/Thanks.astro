@@ -1,0 +1,7 @@
+---
+import Picture from './Picture.astro';
+const {home=false}=Astro.props;
+const preview=import.meta.env.DEV?Astro.url.searchParams.get('previewPhase'):null;
+const photosHref='/fotos'+(preview?'?previewPhase='+encodeURIComponent(preview):'');
+---
+<section class="thanks"><Picture name="venice-night" alt="Luzes de Veneza refletidas na água ao anoitecer" eager/><div class="thanks-content" data-reveal><p class="eyebrow">{home?'O BAILE ACONTECEU. A HISTÓRIA FICOU.':'ANNA SOPHIE · XV'}</p><h1>{home?'Uma noite':'Obrigada por fazer parte'}<br/><em>{home?'para sempre.':'dessa noite.'}</em></h1><div class="ornament">──── ✧ ────</div><p>Existem momentos que passam.<br/>E existem momentos que ficam para sempre.</p><p>Obrigada por compartilhar conosco uma noite tão especial na história de Anna Sophie. Cada abraço, cada sorriso e cada momento fizeram parte desse sonho.</p><p class="script">Com carinho,<br/>Anna Sophie e família</p><a class="button gold" href={photosHref}>Reviver essa noite ↗</a></div></section>

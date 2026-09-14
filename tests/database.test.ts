@@ -1,0 +1,38 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {PGlite} from '@electric-sql/pglite';import {PGLiteSocketServer} from '@electric-sql/pglite-socket';
+import {database} from '../src/lib/db';import {saveResponse,findInvitation} from '../src/lib/rsvp';import {generateToken,hashToken} from '../src/lib/tokens';import {defaultLifecycle} from '../src/lib/lifecycle';
+test('migration and real pg queries: create, update, decline, reopen, revoke, deadline and capacity',async()=>{
+ const db=await PGlite.create();const server=new PGLiteSocketServer({db,host:'127.0.0.1',port:55439});await server.start();
+ process.env.DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:55439/postgres';
+ const pool=database();
+ try{
+ await pool.query(await readFile(new URL('../db/migrations/001_initial.sql',import.meta.url),'utf8'));
+ const lifecycle=defaultLifecycle();lifecycle.rsvp.startsAt='2020-01-01T00:00:00Z';lifecycle.rsvp.endsAt='2099-01-01T00:00:00Z';
+ await pool.query('UPDATE events SET lifecycle=$1',[lifecycle]);
+ const token=generateToken();const second=generateToken();
+ await pool.query("INSERT INTO invitations(event_id,display_name,type,token_hash,max_guests) VALUES(1,'Família Teste','family',$1,4),(1,'Outra Pessoa','individual',$2,1)",[hashToken(token),hashToken(second)]);
+ const response={status:'confirmed',quantity:4,participants:['Pessoa Um','Pessoa Dois','Pessoa Três','Pessoa Quatro'],phone:'11999999999',notes:'teste'};
+ await saveResponse(token,response);
+ assert.equal((await findInvitation(token)).confirmed_guests,4);
+ assert.equal((await findInvitation(second)).status,null);
+ const id=(await pool.query('SELECT id FROM rsvps')).rows[0].id;
+ await assert.rejects(saveResponse(token,{...response,quantity:5,participants:[...response.participants,'Pessoa Cinco']}));
+ assert.equal((await findInvitation(token)).confirmed_guests,4);
+ await saveResponse(token,{...response,quantity:2,participants:['Nome Alterado','Pessoa Dois']});
+ assert.equal((await pool.query('SELECT id FROM rsvps')).rows[0].id,id);
+ assert.deepEqual((await findInvitation(token)).participants,['Nome Alterado','Pessoa Dois']);
+ await saveResponse(token,{status:'declined',quantity:0,participants:[],phone:'',notes:''});
+ assert.equal((await findInvitation(token)).confirmed_guests,0);assert.deepEqual((await findInvitation(token)).participants,[]);
+ await saveResponse(token,{...response,quantity:1,participants:['Pessoa Um']});
+ assert.equal((await pool.query('SELECT count(*) FROM rsvps')).rows[0].count,'1');
+ assert.equal(await findInvitation(generateToken()),null);assert.equal(await findInvitation("' OR 1=1 --"),null);
+ const publicView=await findInvitation(token);assert.ok(!('id' in publicView));assert.ok(!('token_hash' in publicView));
+ await assert.rejects(pool.query('UPDATE rsvps SET confirmed_guests=5'));
+ await assert.rejects(pool.query("INSERT INTO rsvps(event_id,invitation_id,status,confirmed_guests) VALUES(1,1,'confirmed',1)"));
+ await pool.query('UPDATE invitations SET revoked_at=now() WHERE token_hash=$1',[hashToken(token)]);
+ assert.equal(await findInvitation(token),null);await assert.rejects(saveResponse(token,response));
+ await pool.query('UPDATE invitations SET revoked_at=NULL,expires_at=now()-interval \'1 day\' WHERE token_hash=$1',[hashToken(token)]);
+ assert.equal(await findInvitation(token),null);
+ lifecycle.rsvp.endsAt='2021-01-01T00:00:00Z';await pool.query('UPDATE events SET lifecycle=$1',[lifecycle]);
+ await assert.rejects(saveResponse(second,{...response,quantity:1,participants:['Outra Pessoa']}));
+ }finally{await pool.end();await server.stop();await db.close();}
+});

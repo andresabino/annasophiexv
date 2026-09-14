@@ -1,0 +1,7 @@
+---
+import {annaMedia} from "../lib/media";
+interface Props { name?:string; alt:string; eager?:boolean; class?:string; sizes?:string; }
+const {name='palazzo',alt,eager=false,class:className='',sizes='(max-width: 767px) 100vw, 50vw'}=Astro.props;
+const base=name==='palazzo'?annaMedia.base:'/images/'+name;
+---
+<img style={name==="palazzo"?"object-position:"+annaMedia.focalPoint:undefined} class={className} src={base+'-1440.webp'} srcset={[640,960,1440].map(w=>base+'-'+w+'.webp '+w+'w').join(', ')} sizes={eager?"100vw":sizes} width="1440" height="960" alt={name==="palazzo"?annaMedia.alt:alt} loading={eager?'eager':'lazy'} fetchpriority={eager?'high':'auto'} decoding="async" />

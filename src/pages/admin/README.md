@@ -1,0 +1,1 @@
+Futura área administrativa. Nenhuma rota administrativa pública está implementada. Usar autenticação de operador, autorização por evento, CSRF e auditoria antes de adicionar endpoints. O lifecycle é editável no PostgreSQL sem deploy.

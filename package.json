@@ -1,0 +1,37 @@
+{
+  "name": "anna-sophie-15-v3",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env node_modules/astro/astro.js dev --host 127.0.0.1",
+    "build": "astro check && astro build",
+    "start": "node --env-file-if-exists=.env dist/server/entry.mjs",
+    "test": "tsx --test tests/*.test.ts",
+    "db:migrate": "tsx --env-file-if-exists=.env scripts/migrate.ts",
+    "invite": "tsx --env-file-if-exists=.env scripts/invite.ts",
+    "media:upload": "tsx --env-file-if-exists=.env scripts/upload.ts",
+    "lifecycle": "tsx --env-file-if-exists=.env scripts/lifecycle.ts"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.5.0",
+    "@aws-sdk/client-s3": "^3.900.0",
+    "@tailwindcss/vite": "^4.3.0",
+    "astro": "^5.18.2",
+    "gsap": "^3.13.0",
+    "pg": "^8.16.3",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4.3.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@electric-sql/pglite": "^0.5.8",
+    "@electric-sql/pglite-socket": "^0.2.11",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.15.5",
+    "@types/qrcode": "^1.5.6",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

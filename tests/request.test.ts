@@ -1,0 +1,3 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {limitedForm,PayloadTooLarge} from '../src/lib/request';
+test('form body reads URL encoded Unicode correctly',async()=>{const form=await limitedForm(new Request('http://localhost',{method:'POST',body:'participant=Jo%C3%A3o&participant=Maria'}));assert.deepEqual(form.getAll('participant'),['João','Maria'])});
+test('oversized declared and streamed bodies are rejected',async()=>{await assert.rejects(limitedForm(new Request('http://localhost',{method:'POST',headers:{'content-length':'20000'},body:'x'})),PayloadTooLarge);await assert.rejects(limitedForm(new Request('http://localhost',{method:'POST',body:'x'.repeat(16001)})),PayloadTooLarge)});

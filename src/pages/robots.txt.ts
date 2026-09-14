@@ -1,0 +1,1 @@
+import type {APIRoute} from 'astro';import {siteUrl} from '../lib/config';export const GET:APIRoute=()=>new Response('User-agent: *\nDisallow: /confirmar-presenca/\nDisallow: /admin\nSitemap: '+siteUrl()+'/sitemap.xml\n',{headers:{'Content-Type':'text/plain'}});

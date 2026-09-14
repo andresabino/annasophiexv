@@ -1,0 +1,44 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {siteState} from '../../lib/config';
+import {findInvitation,saveResponse,RsvpError} from '../../lib/rsvp';
+import {limitedForm,PayloadTooLarge} from '../../lib/request';
+import {isRsvpOpen,rsvpNotYetOpen} from '../../lib/lifecycle';
+const state=await siteState(Astro.url);
+const token=Astro.params.token||'';
+let invitation:any=null,error='',saved=false,unavailable=false;
+const open=isRsvpOpen(state.config);
+try{
+ if(Astro.request.method==='POST'){
+  if(!open)throw new RsvpError('As confirmações para o baile estão fechadas.',403);
+  const form=await limitedForm(Astro.request);
+  await saveResponse(token,{status:form.get('status'),quantity:form.get('quantity'),participants:form.getAll('participant'),phone:form.get('phone'),notes:form.get('notes')});
+  return Astro.redirect(Astro.url.pathname+'?saved=1',303);
+ }
+ if(process.env.DATABASE_URL)invitation=await findInvitation(token);else unavailable=true;
+ saved=Astro.url.searchParams.get('saved')==='1';
+}catch(e){
+ if(e instanceof PayloadTooLarge){error="O formulário excede o limite permitido.";Astro.response.status=413;}
+ else if(e instanceof RsvpError){error=e.message;Astro.response.status=e.status;try{invitation=await findInvitation(token)}catch{unavailable=true}}
+ else{unavailable=true;Astro.response.status=503;}
+}
+if(!invitation&&!unavailable&&!error)Astro.response.status=404;
+if(unavailable)Astro.response.status=503;
+const closed=state.phase==='POST_EVENT'||!open;
+const count=invitation?.confirmed_guests||1;
+const notYet=rsvpNotYetOpen(state.config);
+---
+<Layout {...state} privatePage title="Seu convite pessoal — Anna Sophie XV"><section class="rsvp-wrap"><div class="rsvp-card"><p class="eyebrow">UM CONVITE RESERVADO A VOCÊ</p>
+{closed?<><h1>{state.phase==='POST_EVENT'?'Obrigada por fazer parte dessa história.':notYet?'As confirmações serão abertas em breve.':'As confirmações para o baile já foram encerradas.'}</h1><p>Guardamos com carinho o seu lugar nesta história.</p><a class="button burgundy" href={state.phase==='POST_EVENT'?'/fotos':'/'}>{state.phase==='POST_EVENT'?'Ver fotos':'Voltar ao início'} ↗</a></>:unavailable?<><h1>Seu convite merece atenção.</h1><p>Não foi possível consultar as confirmações agora. Tente novamente em alguns instantes.</p></>:!invitation?<><h1>Convite indisponível.</h1><p>Confira o link pessoal recebido. Se precisar, solicite novamente seu convite à família.</p><a class="button outline" href="/">Voltar ao início</a></>:<>
+<h1>{invitation.display_name},<br/><em>esperamos vocês no baile.</em></h1><p>Este convite é válido para até <strong>{invitation.max_guests} {invitation.max_guests===1?'pessoa':'pessoas'}</strong>.</p>
+{saved&&<div class="notice success" role="status">Resposta salva. Você pode voltar a este mesmo link para alterá-la enquanto as confirmações estiverem abertas.</div>}{error&&<div class="notice error" role="alert">{error}</div>}
+{invitation.status&&<p class="notice">Sua resposta atual: {invitation.status==='confirmed'?'presença confirmada para '+invitation.confirmed_guests+' pessoa(s).':'não poderemos comparecer.'}</p>}
+<form method="POST" id="rsvp-form" data-max={invitation.max_guests}>
+<fieldset><legend>SUA RESPOSTA</legend><label><input type="radio" name="status" value="confirmed" checked={!invitation.status||invitation.status==='confirmed'} required/>VAMOS AO BAILE</label><label><input type="radio" name="status" value="declined" checked={invitation.status==='declined'}/>NÃO PODEREMOS COMPARECER</label></fieldset>
+<div id="attendance-fields"><label for="quantity">Quantidade de participantes</label><select id="quantity" name="quantity">{Array.from({length:invitation.max_guests},(_,i)=><option value={i+1} selected={count===i+1}>{i+1} {i===0?'pessoa':'pessoas'}</option>)}</select><div id="participants">{Array.from({length:invitation.max_guests},(_,i)=><div data-participant hidden={i>=count}><label for={'participant-'+i}>Nome do participante {i+1}</label><input id={'participant-'+i} name="participant" value={invitation.participants?.[i]||''} minlength="2" maxlength="120" required={i<count} disabled={i>=count} autocomplete={i===0?'name':'off'}/></div>)}</div><label for="phone">WhatsApp com DDD</label><input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="25" value={invitation.phone||''} required/></div><label for="notes">Observação (opcional)</label><textarea id="notes" name="notes" maxlength="1000" rows="3">{invitation.notes||''}</textarea><button class="button burgundy" type="submit">Salvar minha resposta ↗</button></form><p class="privacy-note">Seus dados serão usados pela família para organizar o baile. Este link é pessoal: mantenha-o com os integrantes do seu convite.</p>
+</>}
+</div></section></Layout>
+<script>
+const form=document.querySelector<HTMLFormElement>('#rsvp-form');
+if(form){const quantity=form.querySelector<HTMLSelectElement>('#quantity')!;const sync=()=>{const confirmed=form.querySelector<HTMLInputElement>('[name=status]:checked')!.value==='confirmed';form.querySelector<HTMLElement>('#attendance-fields')!.hidden=!confirmed;quantity.disabled=!confirmed;const phone=form.querySelector<HTMLInputElement>('#phone')!;phone.required=confirmed;phone.disabled=!confirmed;form.querySelectorAll<HTMLElement>('[data-participant]').forEach((row,i)=>{const active=confirmed&&i<Number(quantity.value);row.hidden=!active;row.querySelector('input')!.disabled=!active;row.querySelector('input')!.required=active})};form.addEventListener('change',sync);sync();form.addEventListener('submit',()=>{const button=form.querySelector<HTMLButtonElement>('button[type=submit]')!;button.disabled=true;button.textContent='Salvando sua resposta…'})}
+</script>

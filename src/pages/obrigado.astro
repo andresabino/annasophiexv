@@ -1,0 +1,7 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Thanks from '../components/Thanks.astro';
+import {siteState} from '../lib/config';
+const state=await siteState(Astro.url);
+---
+<Layout {...state} title="Obrigada — Anna Sophie XV"><Thanks/></Layout>

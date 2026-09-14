@@ -1,0 +1,26 @@
+{
+  "saveTheDate": {
+    "startsAt": null,
+    "endsAt": null
+  },
+  "invitation": {
+    "startsAt": null,
+    "endsAt": null
+  },
+  "rsvp": {
+    "startsAt": null,
+    "endsAt": null
+  },
+  "gifts": {
+    "startsAt": null,
+    "endsAt": null
+  },
+  "pix": {
+    "enabled": false,
+    "startsAt": null,
+    "endsAt": null
+  },
+  "postEvent": {
+    "startsAt": null
+  }
+}

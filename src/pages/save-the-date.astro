@@ -1,0 +1,9 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SaveDate from '../components/SaveDate.astro';
+import {siteState} from '../lib/config';
+const state=await siteState(Astro.url);
+const post=state.phase==='POST_EVENT';
+const suffix=state.preview?'?previewPhase='+Astro.url.searchParams.get('previewPhase'):'';
+---
+<Layout {...state} title="Reserve esta noite — Anna Sophie XV">{state.phase==='SAVE_THE_DATE'?<SaveDate/>:<section class="page-intro full-height"><p class="eyebrow">ANNA SOPHIE · XV</p><h1>{post?'O baile aconteceu.':'O convite já foi aberto.'}</h1><div class="ornament">──── ✧ ────</div><p>{post?'Uma noite para sempre.':'As portas do Palazzo esperam por você.'}</p><a class="button burgundy" href={post?'/fotos'+suffix:'/'+(state.preview?'?previewPhase='+Astro.url.searchParams.get('previewPhase'):'')}>{post?'Ver fotos':'Entrar no baile'} ↗</a></section>}</Layout>

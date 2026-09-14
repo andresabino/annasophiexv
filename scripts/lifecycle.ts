@@ -1,0 +1,4 @@
+import {readFile} from 'node:fs/promises';import {database,EVENT_SLUG} from '../src/lib/db';import {validateLifecycle} from '../src/lib/lifecycle';
+const file=process.argv[2];if(!file)throw new Error('Uso: npm run lifecycle -- caminho/lifecycle.json');
+const config=validateLifecycle(JSON.parse(await readFile(file,'utf8')));
+try{const result=await database().query('UPDATE events SET lifecycle=$1,updated_at=now() WHERE slug=$2',[config,EVENT_SLUG]);if(result.rowCount!==1)throw new Error('Execute as migrations primeiro.');console.log('Calendário atualizado. Novos acessos usam a configuração imediatamente; páginas abertas verificam em até 60 segundos.')}finally{await database().end();}

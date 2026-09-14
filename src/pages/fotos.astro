@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Picture from '../components/Picture.astro';
+import {siteState} from '../lib/config';
+import {getPhotos} from '../lib/photos';
+const state=await siteState(Astro.url);
+const photos=await getPhotos();
+const post=state.phase==='POST_EVENT';
+const categories=[...new Map(photos.map(p=>[p.slug,p.album])).entries()];
+---
+<Layout {...state} title="Memórias — Anna Sophie XV"><section class="page-intro"><p class="eyebrow">O ÁLBUM DA NOSSA HISTÓRIA</p><h1>{post?'Uma noite':'Momentos antes'}<br/><em>{post?'para sempre.':'do baile.'}</em></h1><p>{post?'Cada imagem, um pedacinho desse sonho.':'Um olhar sobre os sonhos que antecedem a nossa grande noite.'}</p></section>
+{photos.length>0?<><div class="category-nav" role="group" aria-label="Filtrar álbum"><button data-filter="all" aria-pressed="true">Todos</button>{categories.map(([slug,name])=><button data-filter={slug} aria-pressed="false">{name}</button>)}</div><div class="gallery">{photos.map(p=><figure data-album={p.slug}><button data-photo={p.image_url} data-title={p.title||p.album} aria-label={'Ampliar '+(p.title||p.album)}><img src={p.thumbnail_url||p.image_url} alt={p.title||p.album} loading="lazy" width="600" height="600"/></button><figcaption>{p.title||p.album}</figcaption></figure>)}</div></>:<section class="empty-gallery"><h2>{post?'As lembranças estão chegando.':'O primeiro capítulo vem aí.'}</h2><p>{post?'Estamos reunindo os registros dessa noite. Volte em breve para reviver cada momento.':'O ensaio da Anna Sophie será revelado em breve. Por enquanto, um pequeno vislumbre do universo do baile.'}</p>{!post&&<div class="gallery concept-gallery" style="max-width:850px;margin:35px auto 0;grid-template-columns:1fr 1fr;padding:0"><figure><Picture alt="Ilustração provisória do Palazzo e protagonista fictícia"/><figcaption>Um sonho em construção</figcaption></figure><figure><Picture name="mask-detail" alt="Máscara veneziana dourada"/><figcaption>Entre luzes e mistérios</figcaption></figure></div>}</section>}
+<dialog class="lightbox" aria-label="Foto ampliada"><img alt="" width="1000" height="800"/><p></p><button class="close-dialog">Fechar</button></dialog></Layout>
+<script>
+document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));document.querySelectorAll<HTMLElement>('[data-album]').forEach(figure=>figure.hidden=button.dataset.filter!=='all'&&button.dataset.filter!==figure.dataset.album)}));
+const dialog=document.querySelector<HTMLDialogElement>('.lightbox')!;
+document.querySelectorAll<HTMLElement>('[data-photo]').forEach(button=>button.addEventListener('click',()=>{const img=dialog.querySelector('img')!;img.src=button.dataset.photo!;img.alt=button.dataset.title!;dialog.querySelector('p')!.textContent=button.dataset.title!;dialog.showModal()}));
+dialog.querySelector('.close-dialog')!.addEventListener('click',()=>dialog.close());
+</script>

@@ -1,0 +1,4 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';import {database} from '../../lib/db';const {rows}=await database().query(`SELECT a.*,u.name user_name FROM audit_log a LEFT JOIN admin_users u ON u.id=a.admin_user_id ORDER BY a.created_at DESC LIMIT 300`);
+---
+<AdminLayout title="Auditoria"><header class="page-head"><div><p class="eyebrow">HISTÓRICO ADMINISTRATIVO</p><h1>Auditoria</h1></div></header><div class="table-wrap"><table><thead><tr><th>Quando</th><th>Usuário</th><th>Ação</th><th>Entidade</th><th>ID</th></tr></thead><tbody>{rows.map(row=><tr><td data-label="Quando">{new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date(row.created_at))}</td><td data-label="Usuário">{row.user_name||'Sistema'}</td><td data-label="Ação">{row.action}</td><td data-label="Entidade">{row.entity_type}</td><td data-label="ID">{row.entity_id||'—'}</td></tr>)}</tbody></table></div></AdminLayout>

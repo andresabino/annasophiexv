@@ -1,0 +1,1 @@
+import type {APIRoute} from 'astro';import {exportData,csvBuffer} from '../../lib/admin/import-export';export const GET:APIRoute=async()=>new Response(csvBuffer(await exportData()),{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="convites-anna-sophie.csv"'}});

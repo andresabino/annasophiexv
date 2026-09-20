@@ -1,0 +1,1 @@
+import type {APIRoute} from 'astro';import {exportData,xlsxBuffer} from '../../lib/admin/import-export';export const GET:APIRoute=async()=>new Response(new Uint8Array(await xlsxBuffer(await exportData())),{headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','Content-Disposition':'attachment; filename="convites-anna-sophie.xlsx"'}});

@@ -2,7 +2,7 @@
 
 Hotsite independente em Astro + TypeScript + Tailwind CSS + GSAP/ScrollTrigger, com renderização no servidor Node e PostgreSQL.
 
-Evento: **06/12/2026, 18h15 (America/Sao_Paulo)**. Estação 840, Avenida Marechal Rondon, 840 — Centro, Osasco/SP.
+Evento: **06/12/2026, 17h30 (America/Sao_Paulo)**. Estação 840, Avenida Marechal Rondon, 840 — Centro, Osasco/SP.
 
 ## Iniciar
 
@@ -39,7 +39,7 @@ Todas as datas de abertura e encerramento começam como **null**, inclusive o p�
 
 - Sem abertura do convite definida: Save the Date.
 - Abertura do convite: INVITATION, dentro de sua janela.
-- 06/12/2026 às 18h15: EVENT_DAY.
+- 06/12/2026 às 17h30: EVENT_DAY.
 - A partir do postEvent.startsAt configurado: POST_EVENT.
 - RSVP, presentes e PIX exigem suas próprias datas de abertura. null não abre essas funções.
 - Encerramentos são exclusivos: exatamente no horário definido, a função fecha.
@@ -73,7 +73,21 @@ O preview não abre gravações RSVP. O build de produção ignora o parâmetro.
 Também: /evento.ics, /sitemap.xml, /robots.txt e /api/state.
 Links antigos mostram mensagens apropriadas, incluindo depois da festa.
 
-A pasta src/pages/admin contém apenas orientação de arquitetura. Nenhum painel ou endpoint de administração público foi criado.
+## Administração
+
+O painel privado fica em `/admin` e exige usuário ativo com sessão autenticada. Ele oferece dashboard de convidados, busca e filtros de convites, criação e edição, RSVP manual, regeneração de token, importação CSV/XLSX com prévia, exportação, auditoria e gestão de usuários. No RSVP, cada participante pode ser classificado como `0 a 7 anos`, `8 a 12 anos` ou `13 anos ou mais`; o dashboard e as exportações consolidam essas faixas.
+
+O número 100 é tratado como mínimo contratado, não como capacidade máxima. O sistema não bloqueia convites nem confirmações acima desse número. A estimativa financeira do dashboard considera pessoas de 13 anos ou mais como uma unidade, de 8 a 12 anos como meia unidade e de 0 a 7 anos como isentas, exibindo o equivalente excedente apenas para acompanhamento.
+
+Há dois perfis: `EDITOR`, para a operação cotidiana, e `ADMIN`, para ações sensíveis como liberar vagas, regenerar tokens e administrar acessos. Não existe cadastro público. Para criar ou redefinir o primeiro acesso sem enviar a senha pela linha de comando:
+
+```powershell
+$env:ADMIN_INITIAL_PASSWORD = 'uma-senha-forte-com-12-ou-mais-caracteres'
+npm run admin:provision -- "Nome" email@dominio.com ADMIN
+Remove-Item Env:ADMIN_INITIAL_PASSWORD
+```
+
+Defina também `ADMIN_TOKEN_ENCRYPTION_KEY` com 32 bytes em base64. O banco continua armazenando apenas o hash usado pela rota pública; a chave protege a cópia reversível disponível exclusivamente no painel. Rotas administrativas usam cookies `HttpOnly`, `SameSite=Strict`, expiração de sessão, proteção de origem, `no-store` e trilha de auditoria.
 
 ## Imagens e Cloudflare R2
 
@@ -119,7 +133,7 @@ npm test
 npm run build
 ```
 
-Os testes cobrem migrations SQL, ciclo RSVP usando pg sobre protocolo PostgreSQL, limites, revogação/expiração, datas com fuso, previews, janelas, tokens, CRC PIX e limites do formulário.
+Os testes cobrem migrations SQL, ciclo RSVP usando pg sobre protocolo PostgreSQL, limites, revogação/expiração, datas com fuso, previews, janelas, tokens, CRC PIX, limites do formulário, autenticação administrativa, autorização por perfil, cofre de tokens e validação de importação.
 
 Validação manual: seis larguras de 375 a 1440, navegação, Save the Date, convite, presentes, pós-evento, formulário com dados fictícios e console do navegador. Consulte VALIDATION.md para resultados e pendências de infraestrutura.
 

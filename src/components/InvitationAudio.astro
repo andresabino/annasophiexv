@@ -1,0 +1,21 @@
+---
+import {INVITATION_AUDIO} from '../lib/invitation-audio';
+---
+<audio data-invitation-audio src={INVITATION_AUDIO.src} preload="metadata" loop={INVITATION_AUDIO.loop} playsinline></audio>
+<audio data-intro-sfx src={INVITATION_AUDIO.introSfxSrc} preload="none" playsinline></audio>
+<button class="invitation-audio-toggle" type="button" data-audio-toggle hidden aria-label="Desativar música" title="Música ambiente">
+ <span aria-hidden="true">♫</span><span data-audio-state>Som ligado</span>
+</button>
+<script is:inline define:vars={{targetVolume:INVITATION_AUDIO.volume,fadeDuration:INVITATION_AUDIO.fadeMs,introVolume:INVITATION_AUDIO.introSfxVolume}}>
+ const audio=document.querySelector('[data-invitation-audio]');
+ const introSfx=document.querySelector('[data-intro-sfx]');
+ const toggle=document.querySelector('[data-audio-toggle]');
+ const state=toggle?.querySelector('[data-audio-state]');
+ let wanted=false,frame=0;
+ const fade=(to,duration=500)=>{cancelAnimationFrame(frame);const from=audio.volume,start=performance.now();const step=now=>{const progress=Math.min(1,(now-start)/duration);audio.volume=from+(to-from)*progress;if(progress<1)frame=requestAnimationFrame(step);else if(to===0)audio.pause()};frame=requestAnimationFrame(step)};
+ const update=()=>{const on=wanted&&!audio.paused;toggle.hidden=false;toggle.setAttribute('aria-label',on?'Desativar música':'Ativar música');state.textContent=on?'Som ligado':'Som desligado';toggle.classList.toggle('is-muted',!on)};
+ const start=async()=>{introSfx.volume=introVolume;introSfx.play().catch(()=>{});wanted=true;audio.volume=.05;try{await audio.play();toggle.hidden=false;fade(targetVolume,fadeDuration);update()}catch{wanted=false;toggle.hidden=true}};
+ window.addEventListener('invitation:enter',start);
+ toggle?.addEventListener('click',async()=>{if(!audio.paused){wanted=false;fade(0,450);window.setTimeout(update,470)}else{wanted=true;audio.volume=.05;try{await audio.play();fade(targetVolume,650)}catch{wanted=false}update()}});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&!audio.paused){audio.pause();update()}else if(!document.hidden&&wanted){wanted=false;update()}});
+</script>

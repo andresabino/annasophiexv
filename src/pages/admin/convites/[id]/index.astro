@@ -1,0 +1,41 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import {getInvitation,invitationLink,invitationAction} from '../../../../lib/admin/invitations';
+import {saveManualResponse} from '../../../../lib/admin/manual-rsvp';
+import {requireRole} from '../../../../lib/admin/auth';
+const user=(Astro.locals as any).admin,id=Number(Astro.params.id);let error='',success='';
+if(Astro.request.method==='POST'){
+ try{
+  const form=await Astro.request.formData(),action=String(form.get('action'));
+  if(action==='manual'){
+   await saveManualResponse(id,{status:form.get('status'),quantity:form.get('quantity'),participants:form.getAll('participant'),ageBands:form.getAll('age_band'),phone:form.get('phone'),notes:form.get('notes')},user.id);
+   success='Resposta registrada.';
+  }else{
+   if(action!=='deliver')requireRole(user,'ADMIN');
+   await invitationAction(id,action,user.id,String(form.get('reason')||''));
+   success=action==='deliver'?'Convite marcado como entregue.':action==='release'?'Vagas liberadas e link revogado.':'Token regenerado.';
+  }
+ }catch(e){error=e instanceof Error?e.message:'Não foi possível concluir a ação.'}
+}
+const item=await getInvitation(id);if(!item)return Astro.redirect('/admin/convites',303);
+let link:string|null=null;try{link=invitationLink(item)}catch{}
+const status=item.revoked_at?'Revogado':item.rsvp_status==='confirmed'?'Confirmado':item.rsvp_status==='declined'?'Não irá':'Aguardando resposta';
+const ageLabel=(band:string)=>band==='0_7'?'0 a 7 anos':band==='8_12'?'8 a 12 anos':'13 anos ou mais';
+---
+<AdminLayout title={item.display_name}>
+ <header class="page-head"><div><p class="eyebrow">{item.invitation_round}ª RODADA · {status}</p><h1>{item.display_name}</h1></div><a class="btn secondary" href={`/admin/convites/${id}/editar`}>Editar</a></header>
+ {Astro.url.searchParams.has('created')&&<p class="notice">Convite criado. Copie o link e marque como entregue quando fizer o envio.</p>}{success&&<p class="notice">{success}</p>}{error&&<p class="notice error">{error}</p>}
+ <div class="grid-2">
+  <section class="panel"><h2>Dados do convite</h2><p><b>Tipo:</b> {item.type}<br/><b>Previstos:</b> {item.expected_guests}<br/><b>Limite:</b> {item.max_guests}<br/><b>Confirmados:</b> {item.confirmed_guests}<br/><b>Prazo:</b> {item.rsvp_deadline?new Intl.DateTimeFormat('pt-BR',{dateStyle:'long'}).format(new Date(item.rsvp_deadline)):'Não definido'}<br/><b>Entregue:</b> {item.delivered_at?'Sim':'Não'}<br/><b>Primeira visualização:</b> {item.first_viewed_at?new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date(item.first_viewed_at)):'—'}</p>
+   {item.expected_participants?.length>0&&<><h2 style="margin-top:22px">Participantes previstos</h2><p>{item.expected_participants.join(', ')}</p></>}
+   {item.participants?.length>0&&<><h2 style="margin-top:22px">Faixas etárias confirmadas</h2><ul class="participant-summary">{item.participants.map((name:string,index:number)=><li><span>{name}</span><small>{ageLabel(item.participant_age_bands?.[index]||'')}</small></li>)}</ul></>}
+   {link?<div class="actions"><button class="btn" type="button" data-copy={link}>Copiar link</button><a class="btn secondary" href={link} target="_blank">Abrir convite</a></div>:<p class="notice">Este convite é anterior ao cofre de tokens. Regenerar o token criará um novo link copiável.</p>}
+   <div class="actions"><form method="post"><input type="hidden" name="action" value="deliver"/><button class="btn secondary">Marcar como entregue</button></form>{user.role==='ADMIN'&&<form method="post"><input type="hidden" name="action" value="regenerate"/><button class="btn secondary">Regenerar token</button></form>}</div>
+   {user.role==='ADMIN'&&!item.revoked_at&&!item.rsvp_status&&<form method="post" class="actions" onsubmit="return confirm('Revogar este convite e liberar as vagas? O link atual deixará de permitir confirmação.')"><input type="hidden" name="action" value="release"/><input name="reason" placeholder="Motivo da liberação" required/><button class="btn danger">Liberar vagas</button></form>}
+  </section>
+  <section class="panel"><h2>RSVP manual</h2><form method="post"><input type="hidden" name="action" value="manual"/><label>Resposta<select name="status"><option value="confirmed" selected={item.rsvp_status==='confirmed'}>Confirmado</option><option value="declined" selected={item.rsvp_status==='declined'}>Não irá</option><option value="cancelled" selected={item.rsvp_status==='cancelled'}>Cancelado</option></select></label><label>Quantidade<input name="quantity" type="number" min="0" max={item.max_guests} value={item.confirmed_guests||1}/></label>
+   <div class="participants admin-participants">{Array.from({length:item.max_guests},(_,i)=><div><input name="participant" placeholder={`Participante ${i+1}`} value={item.participants?.[i]||''}/><select name="age_band" aria-label={`Faixa etária do participante ${i+1}`}><option value="" selected={!item.participant_age_bands?.[i]}>13 anos ou mais</option><option value="0_7" selected={item.participant_age_bands?.[i]==='0_7'}>0 a 7 anos</option><option value="8_12" selected={item.participant_age_bands?.[i]==='8_12'}>8 a 12 anos</option></select></div>)}</div>
+   <label>Telefone<input name="phone" value={item.rsvp_phone||item.phone||''}/></label><label>Observação<textarea name="notes" rows="3">{item.rsvp_notes||''}</textarea></label><button class="btn" type="submit">Salvar RSVP manual</button>
+  </form></section>
+ </div>
+</AdminLayout>

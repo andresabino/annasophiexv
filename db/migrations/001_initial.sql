@@ -16,4 +16,4 @@ CREATE TABLE photo_albums(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,eve
 CREATE TABLE photos(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,album_id bigint NOT NULL REFERENCES photo_albums,title text,description text,image_url text NOT NULL,thumbnail_url text,sort_order integer NOT NULL DEFAULT 0,active boolean NOT NULL DEFAULT true,taken_at timestamptz,created_at timestamptz NOT NULL DEFAULT now());
 CREATE INDEX photos_album_order ON photos(album_id,sort_order);
 CREATE INDEX participants_rsvp ON rsvp_participants(rsvp_id);
-INSERT INTO events(name,slug,event_date,event_time,venue_name,venue_address) VALUES('Anna Sophie — XV Anos','anna-sophie-xv','2026-12-06','18:15','Estação 840','Avenida Marechal Rondon, 840 — Centro, Osasco/SP');
+INSERT INTO events(name,slug,event_date,event_time,venue_name,venue_address) VALUES('Anna Sophie — XV Anos','anna-sophie-xv','2026-12-06','17:30','Estação 840','Avenida Marechal Rondon, 840 — Centro, Osasco/SP');

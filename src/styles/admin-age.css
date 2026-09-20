@@ -1,0 +1,6 @@
+.participant-summary{list-style:none;padding:0;margin:0;display:grid;gap:7px}
+.participant-summary li{display:flex;justify-content:space-between;gap:15px;padding:9px 11px;background:#faf7f0;border-left:3px solid var(--gold)}
+.participant-summary small{color:var(--muted)}
+.admin-participants>div{display:grid;grid-template-columns:minmax(0,1fr) 160px;gap:7px}
+.admin-participants select{min-width:0}
+@media(max-width:800px){.admin-participants>div{grid-template-columns:1fr}.participant-summary li{align-items:flex-start;flex-direction:column;gap:2px}}

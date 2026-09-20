@@ -1,0 +1,4 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';import AdminInvitationForm from '../../../components/AdminInvitationForm.astro';import {createInvitation,AdminError} from '../../../lib/admin/invitations';const user=(Astro.locals as any).admin;let error='';if(Astro.request.method==='POST'){try{const id=await createInvitation(await Astro.request.formData(),user.id);return Astro.redirect(`/admin/convites/${id}?created=1`,303)}catch(e){error=e instanceof AdminError?e.message:'Não foi possível criar o convite.';}}
+---
+<AdminLayout title="Novo convite"><header class="page-head"><div><p class="eyebrow">CONVITES</p><h1>Novo convite</h1></div></header>{error&&<p class="notice error">{error}</p>}<form class="panel" method="post"><AdminInvitationForm/></form></AdminLayout>

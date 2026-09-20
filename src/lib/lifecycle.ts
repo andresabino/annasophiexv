@@ -1,7 +1,7 @@
 export type Phase = 'SAVE_THE_DATE' | 'INVITATION' | 'EVENT_DAY' | 'POST_EVENT';
 export type Window = { startsAt: string | null; endsAt: string | null };
 export type Lifecycle = { saveTheDate: Window; invitation: Window; rsvp: Window; gifts: Window; pix: Window & {enabled:boolean}; postEvent: {startsAt:string|null} };
-export const EVENT_START = '2026-12-06T18:15:00-03:00';
+export const EVENT_START = '2026-12-06T17:30:00-03:00';
 const empty = (): Window => ({ startsAt: null, endsAt: null });
 export const defaultLifecycle = (): Lifecycle => ({saveTheDate:empty(), invitation:empty(), rsvp:empty(), gifts:empty(), pix:{...empty(),enabled:false},postEvent:{startsAt:null}});
 export function parseDate(value: unknown): string | null {

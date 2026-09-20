@@ -7,14 +7,16 @@ Local definitivo: C:\Projetos\Pessoal\anna-sophie-15-v3
 - V3 independente, com package-lock, dependências e build próprios.
 - V2 executada por cópia isolada. Comparação SHA-256 dos 23 arquivos de src/public: zero alterações.
 - npm ci e npm run build na pasta definitiva: sucesso. Astro check: 39 arquivos, zero erros, zero avisos.
-- npm test: 11 testes passaram.
+- npm test: 15 testes passaram.
 - Migration SQL executada em PostgreSQL WASM/PGlite, com conexão pg via protocolo PostgreSQL.
 - Comando de migrations executado duas vezes: sucesso sem duplicação do catálogo.
 - RSVP: confirmação, alteração no mesmo registro, recusa, reconfirmação, capacidade, token inválido, revogação e expiração testados.
+- Faixa etária opcional por participante testada: adulto por padrão, `0 a 7 anos` e `8 a 12 anos`, incluindo persistência, alteração e rejeição de valor inválido.
+- O mínimo contratado de 100 pessoas não bloqueia cadastros, importações ou confirmações acima desse total; o excedente equivalente é apenas informativo.
 - Gravação e alteração do convite fictício verificadas também no navegador.
 - Testes HTTP: oito rotas públicas responderam 200; token inválido 404; origem externa 403; excesso de convidados 400; corpo acima de 16 KB 413; limite de requisições 429.
 - Build de produção ignorou previewPhase tanto na Home quanto na API de estado.
-- Calendário ICS contém DTSTART:20261206T211500Z (18h15 em São Paulo).
+- Calendário ICS contém DTSTART:20261206T203000Z (17h30 em São Paulo).
 - PIX ausente com flag desativada. Modal/QR exibidos com configuração fictícia; Escape fecha e devolve foco ao botão.
 - CRC PIX conferido com vetor padrão 123456789 -> 29B1. Nenhum pagamento foi realizado.
 - Home do convite inspecionada em 375, 390, 430, 768, 1024 e 1440 pixels: sem overflow horizontal.
@@ -30,6 +32,13 @@ Local definitivo: C:\Projetos\Pessoal\anna-sophie-15-v3
 3. Datas de abertura do convite, RSVP, presentes e início do pós-evento. Permanecem null conforme solicitado. A transição final não ocorre até postEvent.startsAt ser definido.
 4. Chave e destinatário PIX se desejado. A configuração entregue permanece desativada.
 5. Fotos oficiais de Anna Sophie. As atuais são composições artísticas provisórias.
+
+## Área administrativa — 19/09/2026
+
+- Migration administrativa, autenticação, autorização `ADMIN`/`EDITOR`, sessões e auditoria validadas.
+- Dashboard, criação/edição de convites, RSVP manual, liberação de vagas, regeneração de token, importação/exportação e usuários exercitados no servidor local.
+- Rota `/admin` redireciona visitantes para o login; home e login inspecionados visualmente sem overlay, overflow horizontal ou erros/avisos no console.
+- `npm test`: 15 testes passaram. `npm run build`: zero erros e build SSR concluído.
 
 O servidor de revisão é local. O site não foi publicado.
 

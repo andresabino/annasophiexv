@@ -6,4 +6,4 @@ import Thanks from '../components/Thanks.astro';
 import {siteState} from '../lib/config';
 const state=await siteState(Astro.url);
 ---
-<Layout {...state} hero={state.phase==='INVITATION'||state.phase==='EVENT_DAY'}>{state.phase==='SAVE_THE_DATE'?<SaveDate/>:state.phase==='POST_EVENT'?<Thanks home/>:<Invitation {...state}/>}</Layout>
+<Layout {...state} hero={state.phase==='INVITATION'||state.phase==='EVENT_DAY'} cinematic={state.phase==='INVITATION'||state.phase==='EVENT_DAY'}>{state.phase==='SAVE_THE_DATE'?<SaveDate/>:state.phase==='POST_EVENT'?<Thanks home/>:<Invitation {...state}/>}</Layout>

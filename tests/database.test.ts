@@ -6,20 +6,28 @@ test('migration and real pg queries: create, update, decline, reopen, revoke, de
  const pool=database();
  try{
  await pool.query(await readFile(new URL('../db/migrations/001_initial.sql',import.meta.url),'utf8'));
+ await pool.query(await readFile(new URL('../db/migrations/002_admin_v1.sql',import.meta.url),'utf8'));
+ await pool.query(await readFile(new URL('../db/migrations/003_participant_age_band.sql',import.meta.url),'utf8'));
+ await pool.query(await readFile(new URL('../db/migrations/004_unlimited_guest_registration.sql',import.meta.url),'utf8'));
  const lifecycle=defaultLifecycle();lifecycle.rsvp.startsAt='2020-01-01T00:00:00Z';lifecycle.rsvp.endsAt='2099-01-01T00:00:00Z';
  await pool.query('UPDATE events SET lifecycle=$1',[lifecycle]);
  const token=generateToken();const second=generateToken();
  await pool.query("INSERT INTO invitations(event_id,display_name,type,token_hash,max_guests) VALUES(1,'Família Teste','family',$1,4),(1,'Outra Pessoa','individual',$2,1)",[hashToken(token),hashToken(second)]);
- const response={status:'confirmed',quantity:4,participants:['Pessoa Um','Pessoa Dois','Pessoa Três','Pessoa Quatro'],phone:'11999999999',notes:'teste'};
+ const response={status:'confirmed',quantity:4,participants:['Pessoa Um','Pessoa Dois','Pessoa Três','Pessoa Quatro'],ageBands:['','0_7','8_12',''],phone:'11999999999',notes:'teste'};
  await saveResponse(token,response);
  assert.equal((await findInvitation(token)).confirmed_guests,4);
+ assert.deepEqual((await findInvitation(token)).participant_age_bands,['','0_7','8_12','']);
+ assert.ok((await pool.query('SELECT first_viewed_at,last_viewed_at FROM invitations WHERE token_hash=$1',[hashToken(token)])).rows[0].first_viewed_at);
+ assert.equal((await pool.query('SELECT count(*) FROM rsvp_history')).rows[0].count,'1');
  assert.equal((await findInvitation(second)).status,null);
  const id=(await pool.query('SELECT id FROM rsvps')).rows[0].id;
  await assert.rejects(saveResponse(token,{...response,quantity:5,participants:[...response.participants,'Pessoa Cinco']}));
  assert.equal((await findInvitation(token)).confirmed_guests,4);
- await saveResponse(token,{...response,quantity:2,participants:['Nome Alterado','Pessoa Dois']});
+ await saveResponse(token,{...response,quantity:2,participants:['Nome Alterado','Pessoa Dois'],ageBands:['8_12','']});
  assert.equal((await pool.query('SELECT id FROM rsvps')).rows[0].id,id);
  assert.deepEqual((await findInvitation(token)).participants,['Nome Alterado','Pessoa Dois']);
+ assert.deepEqual((await findInvitation(token)).participant_age_bands,['8_12','']);
+ await assert.rejects(saveResponse(token,{...response,ageBands:['','invalida','','']}));
  await saveResponse(token,{status:'declined',quantity:0,participants:[],phone:'',notes:''});
  assert.equal((await findInvitation(token)).confirmed_guests,0);assert.deepEqual((await findInvitation(token)).participants,[]);
  await saveResponse(token,{...response,quantity:1,participants:['Pessoa Um']});
@@ -32,6 +40,9 @@ test('migration and real pg queries: create, update, decline, reopen, revoke, de
  assert.equal(await findInvitation(token),null);await assert.rejects(saveResponse(token,response));
  await pool.query('UPDATE invitations SET revoked_at=NULL,expires_at=now()-interval \'1 day\' WHERE token_hash=$1',[hashToken(token)]);
  assert.equal(await findInvitation(token),null);
+ assert.equal((await pool.query("SELECT event_time,guest_capacity,staff_capacity FROM events WHERE id=1")).rows[0].event_time,'17:30:00');
+ await pool.query("INSERT INTO invitations(event_id,display_name,type,token_hash,max_guests) SELECT 1,'Convite excedente '||value,'individual',md5(random()::text)||md5(random()::text),1 FROM generate_series(1,101) value");
+ assert.equal((await pool.query('SELECT count(*) FROM invitations')).rows[0].count,'103');
  lifecycle.rsvp.endsAt='2021-01-01T00:00:00Z';await pool.query('UPDATE events SET lifecycle=$1',[lifecycle]);
  await assert.rejects(saveResponse(second,{...response,quantity:1,participants:['Outra Pessoa']}));
  }finally{await pool.end();await server.stop();await db.close();}

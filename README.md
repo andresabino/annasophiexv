@@ -77,7 +77,7 @@ Links antigos mostram mensagens apropriadas, incluindo depois da festa.
 
 O painel privado fica em `/admin` e exige usuário ativo com sessão autenticada. Ele oferece dashboard de convidados, busca e filtros de convites, criação e edição, RSVP manual, regeneração de token, importação CSV/XLSX com prévia, exportação, auditoria e gestão de usuários. No RSVP, cada participante pode ser classificado como `0 a 7 anos`, `8 a 12 anos` ou `13 anos ou mais`; o dashboard e as exportações consolidam essas faixas.
 
-O número 100 é tratado como mínimo contratado, não como capacidade máxima. O sistema não bloqueia convites nem confirmações acima desse número. A estimativa financeira do dashboard considera pessoas de 13 anos ou mais como uma unidade, de 8 a 12 anos como meia unidade e de 0 a 7 anos como isentas, exibindo o equivalente excedente apenas para acompanhamento.
+O número 100 é tratado como mínimo contratado, não como capacidade máxima. O sistema não bloqueia convites nem confirmações acima desse número. O dashboard avisa quando a referência é atingida ou ultrapassada. A estimativa financeira considera pessoas de 13 anos ou mais como uma unidade, de 8 a 12 anos como meia unidade e de 0 a 7 anos como isentas, exibindo o equivalente excedente apenas para acompanhamento.
 
 Há dois perfis: `EDITOR`, para a operação cotidiana, e `ADMIN`, para ações sensíveis como liberar vagas, regenerar tokens e administrar acessos. Não existe cadastro público. Para criar ou redefinir o primeiro acesso sem enviar a senha pela linha de comando:
 

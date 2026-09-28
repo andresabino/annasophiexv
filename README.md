@@ -75,7 +75,7 @@ Links antigos mostram mensagens apropriadas, incluindo depois da festa.
 
 ## Administração
 
-O painel privado fica em `/admin` e exige usuário ativo com sessão autenticada. Ele oferece dashboard de convidados, busca e filtros de convites, criação e edição, RSVP manual, regeneração de token, importação CSV/XLSX com prévia, exportação, auditoria e gestão de usuários. No RSVP, cada participante pode ser classificado como `0 a 7 anos`, `8 a 12 anos` ou `13 anos ou mais`; o dashboard e as exportações consolidam essas faixas.
+O painel privado fica em `/admin` e exige usuário ativo, vinculado ao evento da V3, com sessão autenticada. Ele oferece dashboard de convidados e staff, busca e filtros de convites, criação e edição, RSVP manual, regeneração de token, importação CSV/XLSX com prévia, exportação, auditoria e gestão de usuários. A equipe do evento aceita até 10 integrantes ativos, conforme `staff_capacity`. No RSVP, cada participante pode ser classificado como `0 a 7 anos`, `8 a 12 anos` ou `13 anos ou mais`; o dashboard e as exportações consolidam essas faixas.
 
 O número 100 é tratado como mínimo contratado, não como capacidade máxima. O sistema não bloqueia convites nem confirmações acima desse número. O dashboard avisa quando a referência é atingida ou ultrapassada. A estimativa financeira considera pessoas de 13 anos ou mais como uma unidade, de 8 a 12 anos como meia unidade e de 0 a 7 anos como isentas, exibindo o equivalente excedente apenas para acompanhamento.
 
@@ -87,7 +87,7 @@ npm run admin:provision -- "Nome" email@dominio.com ADMIN
 Remove-Item Env:ADMIN_INITIAL_PASSWORD
 ```
 
-Defina também `ADMIN_TOKEN_ENCRYPTION_KEY` com 32 bytes em base64. O banco continua armazenando apenas o hash usado pela rota pública; a chave protege a cópia reversível disponível exclusivamente no painel. Rotas administrativas usam cookies `HttpOnly`, `SameSite=Strict`, expiração de sessão, proteção de origem, `no-store` e trilha de auditoria.
+Defina também `ADMIN_TOKEN_ENCRYPTION_KEY` com 32 bytes em base64. O banco continua armazenando apenas o hash usado pela rota pública; a chave protege a cópia reversível disponível exclusivamente no painel. Rotas administrativas usam cookies `HttpOnly`, `SameSite=Strict`, expiração de sessão, token CSRF derivado da sessão, proteção de origem, `no-store` e trilha de auditoria.
 
 ## Imagens e Cloudflare R2
 

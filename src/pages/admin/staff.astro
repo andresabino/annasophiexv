@@ -1,0 +1,30 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import {assertCsrf} from '../../lib/admin/auth';
+import {listStaff,saveStaff,toggleStaff} from '../../lib/admin/staff';
+const user=(Astro.locals as any).admin,csrf=(Astro.locals as any).csrf,sessionToken=(Astro.locals as any).sessionToken;
+let error='',success='';
+if(Astro.request.method==='POST')try{
+ const form=await Astro.request.formData();
+ assertCsrf(form,sessionToken);
+ if(form.get('action')==='toggle'){
+  await toggleStaff(form,user);
+  success=String(form.get('active'))==='true'?'Membro ativado.':'Membro desativado.';
+ }else{
+  await saveStaff(form,user);
+  success=form.get('staff_id')?'Membro atualizado.':'Membro cadastrado.';
+ }
+}catch(e){
+ if(e instanceof Response)throw e;
+ error=e instanceof Error&&e.message.includes('capacity')?'O limite de 10 membros ativos foi atingido.':e instanceof Error?e.message:'Não foi possível salvar.';
+}
+const members=await listStaff(user.eventId),active=members.filter((member:any)=>member.active).length;
+---
+<AdminLayout title="Staff">
+ <header class="page-head"><div><p class="eyebrow">EQUIPE DO EVENTO</p><h1>Staff · {active} / 10 ativos</h1></div></header>
+ {success&&<p class="notice">{success}</p>}{error&&<p class="notice error">{error}</p>}
+ <div class="grid-2">
+  <section class="panel"><h2>Novo membro</h2><form method="post"><input type="hidden" name="_csrf" value={csrf}/><label>Nome<input name="name" maxlength="120" required/></label><label>Função<input name="role_description" maxlength="120"/></label><label>Telefone<input name="phone" maxlength="25"/></label><label>Observações<textarea name="notes" maxlength="1000" rows="3"></textarea></label><button class="btn">Cadastrar</button></form></section>
+  <section class="panel"><h2>Equipe cadastrada</h2>{members.map((member:any)=><details class="guest-card"><summary>{member.name} · {member.active?'Ativo':'Inativo'}</summary><form method="post"><input type="hidden" name="_csrf" value={csrf}/><input type="hidden" name="staff_id" value={member.id}/><input type="hidden" name="active" value={String(!member.active)}/><label>Nome<input name="name" value={member.name} required/></label><label>Função<input name="role_description" value={member.role_description||''}/></label><label>Telefone<input name="phone" value={member.phone||''}/></label><label>Observações<textarea name="notes" rows="2">{member.notes||''}</textarea></label><div class="actions"><button class="btn">Salvar</button><button class:list={['btn',member.active?'danger':'secondary']} name="action" value="toggle">{member.active?'Desativar':'Ativar'}</button></div></form></details>)}{!members.length&&<p class="empty">Nenhum membro cadastrado.</p>}</section>
+ </div>
+</AdminLayout>

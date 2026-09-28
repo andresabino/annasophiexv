@@ -9,6 +9,11 @@ test('migration and real pg queries: create, update, decline, reopen, revoke, de
  await pool.query(await readFile(new URL('../db/migrations/002_admin_v1.sql',import.meta.url),'utf8'));
  await pool.query(await readFile(new URL('../db/migrations/003_participant_age_band.sql',import.meta.url),'utf8'));
  await pool.query(await readFile(new URL('../db/migrations/004_unlimited_guest_registration.sql',import.meta.url),'utf8'));
+ await pool.query(await readFile(new URL('../db/migrations/005_v3_consolidation.sql',import.meta.url),'utf8'));
+ await pool.query("INSERT INTO admin_users(name,email,password_hash,role) VALUES('Admin','admin@example.test','hash','ADMIN')");
+ await pool.query('INSERT INTO admin_user_events(admin_user_id,event_id) SELECT id,1 FROM admin_users');
+ assert.equal((await pool.query('SELECT count(*) FROM admin_user_events')).rows[0].count,'1');
+ await pool.query("INSERT INTO event_staff(event_id,name) SELECT 1,'Staff '||value FROM generate_series(1,10) value");
  const lifecycle=defaultLifecycle();lifecycle.rsvp.startsAt='2020-01-01T00:00:00Z';lifecycle.rsvp.endsAt='2099-01-01T00:00:00Z';
  await pool.query('UPDATE events SET lifecycle=$1',[lifecycle]);
  const token=generateToken();const second=generateToken();
@@ -45,5 +50,6 @@ test('migration and real pg queries: create, update, decline, reopen, revoke, de
  assert.equal((await pool.query('SELECT count(*) FROM invitations')).rows[0].count,'103');
  lifecycle.rsvp.endsAt='2021-01-01T00:00:00Z';await pool.query('UPDATE events SET lifecycle=$1',[lifecycle]);
  await assert.rejects(saveResponse(second,{...response,quantity:1,participants:['Outra Pessoa']}));
+ await assert.rejects(pool.query("INSERT INTO event_staff(event_id,name) VALUES(1,'Staff excedente')"));
  }finally{await pool.end();await server.stop();await db.close();}
 });

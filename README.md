@@ -91,7 +91,7 @@ Defina também `ADMIN_TOKEN_ENCRYPTION_KEY` com 32 bytes em base64. O banco cont
 
 ## Imagens e Cloudflare R2
 
-As composições provisórias foram geradas especificamente para a V3. A imagem de referência não é usada como background de interface. Os originais de design ficam em assets/source (fora de public); os assets utilizados têm versões WebP 640/960/1440.
+A fotografia principal da Anna Sophie usa o original `assets/source/anna-main.jpeg`, com versões WebP responsivas em 640/960/1440 e Open Graph atualizado. As demais composições visuais foram geradas especificamente para a V3. A imagem de referência não é usada como background de interface; os originais de design ficam em `assets/source` (fora de `public`).
 
 ```powershell
 node scripts/images.mjs
@@ -107,8 +107,7 @@ O comando gera WebP e thumbnail, envia ao R2 e salva somente URLs/metadados no P
 
 Se as fotos forem colocadas no R2 manualmente, cadastre suas URLs em photos (image_url, thumbnail_url, album_id, title, sort_order, active). Não grave imagens binárias no PostgreSQL.
 
-A substituição da protagonista é centralizada em src/lib/media.ts:
-base, focalPoint, alt e placeholder. Use as variantes -640.webp, -960.webp, -1440.webp em public/images/anna/final ou uma base pública equivalente no R2. O layout e as animações são preservados. Atualize também a imagem Open Graph quando o ensaio estiver disponível.
+A fotografia da protagonista é centralizada em `src/lib/media.ts`: `base`, `focalPoint`, `alt` e `placeholder`. Para uma substituição futura, atualize `assets/source/anna-main.jpeg` e execute `node scripts/images.mjs`; o layout, as animações, as versões responsivas e a imagem Open Graph são preservados.
 
 ## Presentes e PIX
 

@@ -22,7 +22,7 @@ Local definitivo: C:\Projetos\Pessoal\anna-sophie-15-v3
 - Home do convite inspecionada em 375, 390, 430, 768, 1024 e 1440 pixels: sem overflow horizontal.
 - Save the Date, presentes e pós-evento inspecionados visualmente; console da página de presentes sem erros/avisos.
 - Reduced motion implementado em CSS e na condição de carregamento/animação do GSAP.
-- Imagens próprias geradas e convertidas em WebP responsivo; imagem de referência não é utilizada como interface.
+- Imagens próprias geradas e convertidas em WebP responsivo; fotografia real da Anna Sophie aplicada ao destaque principal e ao Open Graph; imagem de referência não é utilizada como interface.
 - Bershka atualizada para o endereço fornecido pelo usuário.
 
 ## Configuração ainda necessária
@@ -31,7 +31,6 @@ Local definitivo: C:\Projetos\Pessoal\anna-sophie-15-v3
 2. Credenciais/domínio público do R2 ou URLs das imagens que o usuário colocará no storage. A abstração e o comando de upload estão implementados; upload real não foi executado.
 3. Datas de abertura do convite, RSVP, presentes e início do pós-evento. Permanecem null conforme solicitado. A transição final não ocorre até postEvent.startsAt ser definido.
 4. Chave e destinatário PIX se desejado. A configuração entregue permanece desativada.
-5. Fotos oficiais de Anna Sophie. As atuais são composições artísticas provisórias.
 
 ## Área administrativa — 19/09/2026
 

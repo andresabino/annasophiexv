@@ -22,13 +22,13 @@ Local definitivo: C:\Projetos\Pessoal\anna-sophie-15-v3
 - Home do convite inspecionada em 375, 390, 430, 768, 1024 e 1440 pixels: sem overflow horizontal.
 - Save the Date, presentes e pós-evento inspecionados visualmente; console da página de presentes sem erros/avisos.
 - Reduced motion implementado em CSS e na condição de carregamento/animação do GSAP.
-- Imagens próprias geradas e convertidas em WebP responsivo; fotografia real da Anna Sophie aplicada ao destaque principal e ao Open Graph; imagem de referência não é utilizada como interface.
+- Ensaio oficial da Anna Sophie integrado como fonte única do hero, retrato editorial, palacete, Save the Date, galeria e Open Graph, com recortes AVIF/WebP próprios para desktop e celular e 21 originais disponíveis na galeria.
 - Bershka atualizada para o endereço fornecido pelo usuário.
 
 ## Configuração ainda necessária
 
 1. PostgreSQL real conectado e validado: container anna-sophie-v3-postgres, imagem local postgres:17-alpine, porta 127.0.0.1:5433 e volume anna-sophie-v3-postgres-data. Migrations e seeds executados duas vezes sem duplicação (37 presentes, 7 categorias, 9 álbuns). Confirmação e recusa gravadas pelo navegador. Dados fictícios removidos e lifecycle original restaurado. Os 11 testes e o build passaram novamente. Containers de outros projetos preservados.
-2. Credenciais/domínio público do R2 ou URLs das imagens que o usuário colocará no storage. A abstração e o comando de upload estão implementados; upload real não foi executado.
+2. Credenciais/domínio público do R2 continuam opcionais para futuras fotos do evento. O ensaio oficial do convite já está incluído localmente na V3; a abstração e o comando de upload permanecem disponíveis para novos álbuns.
 3. Datas de abertura do convite, RSVP, presentes e início do pós-evento. Permanecem null conforme solicitado. A transição final não ocorre até postEvent.startsAt ser definido.
 4. Chave e destinatário PIX se desejado. A configuração entregue permanece desativada.
 

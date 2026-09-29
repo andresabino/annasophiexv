@@ -11,6 +11,7 @@
     "db:migrate": "tsx --env-file-if-exists=.env scripts/migrate.ts",
     "invite": "tsx --env-file-if-exists=.env scripts/invite.ts",
     "media:upload": "tsx --env-file-if-exists=.env scripts/upload.ts",
+    "media:curate": "node scripts/generate-curated-images.mjs",
     "lifecycle": "tsx --env-file-if-exists=.env scripts/lifecycle.ts",
     "admin:provision": "tsx --env-file-if-exists=.env scripts/provision-admin.ts"
   },

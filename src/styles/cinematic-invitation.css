@@ -106,3 +106,11 @@ body:not(.palazzo-entered):has(.palazzo-intro){overflow:hidden}.palazzo-intro{po
 @media(max-width:767px){.wax-backdrop{background-position:center}.wax-heading{top:9%;width:92vw}.wax-heading p{font-size:7px;letter-spacing:.31em}.wax-heading span{margin-top:12px}.envelope-stage{top:50%;width:91vw;aspect-ratio:1.52;transform:translate(-50%,-42%)}.envelope-card{left:6%;right:6%;height:88%}.envelope-card strong{font-size:42px}.envelope-card b{font-size:20px}.envelope-flap{height:59%}.envelope-ribbon{top:48%;height:15%}.wax-seal{top:55%;width:96px}.wax-instruction{bottom:10%;font-size:7px;letter-spacing:.28em}.palazzo-skip{right:14px;bottom:14px}.is-opening .envelope-stage{animation-name:envelope-focus-mobile}@keyframes envelope-focus-mobile{to{transform:translate(-50%,-30%) scale(1.06)}}}
 @media(max-width:389px){.envelope-stage{width:94vw}.wax-heading{top:7%}.wax-instruction{bottom:8%}.envelope-card strong{font-size:36px}.seal-monogram{font-size:34px}}
 @media(prefers-reduced-motion:reduce){.wax-dust{display:none}.is-opening .seal-cracks path{animation-duration:.12s!important;animation-delay:0s!important}.is-opening .seal-left,.is-opening .seal-right,.is-opening .ribbon-left,.is-opening .ribbon-right,.is-opening .envelope-flap,.is-opening .envelope-card,.is-opening .envelope-stage,.wax-intro.is-opening{animation-duration:.25s!important;animation-delay:.1s!important}}
+
+/* Responsive official-photo sources wrap the image in <picture>. */
+.ballroom-scene>picture,.mask-scene>picture{position:absolute;inset:0;width:100%;height:100%}
+.ballroom-scene>picture img{object-position:center 37%;transform:scale(1.02)}
+.mask-scene>picture img{object-position:center 55%}
+.anna-photo-preview picture{display:block;width:100%;height:100%}
+@media(max-width:767px){.ballroom-scene>picture img{object-position:center 38%}.mask-scene>picture img{object-position:center 58%}}
+@media(prefers-reduced-motion:reduce){.ballroom-scene>picture img{transform:none}}

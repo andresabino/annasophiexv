@@ -1,7 +1,14 @@
 ---
-import {annaMedia} from "../lib/media";
-interface Props { name?:string; alt:string; eager?:boolean; class?:string; sizes?:string; }
-const {name='palazzo',alt,eager=false,class:className='',sizes='(max-width: 767px) 100vw, 50vw'}=Astro.props;
-const base=name==='palazzo'?annaMedia.base:'/images/'+name;
+interface Props { name?:string; base?:string; mobileBase?:string; alt:string; eager?:boolean; class?:string; sizes?:string; width?:number; height?:number; mobileWidth?:number; mobileHeight?:number; }
+const {name,base:customBase,mobileBase,alt,eager=false,class:className='',sizes='(max-width: 767px) 100vw, 50vw',width=1440,height=960,mobileWidth=960,mobileHeight=1440}=Astro.props;
+const base=customBase??'/images/'+name;
+const widths=[640,960,1440];
+const srcset=(source:string,format:'webp'|'avif')=>widths.map(w=>`${source}-${w}.${format} ${w}w`).join(', ');
 ---
-<img style={name==="palazzo"?"object-position:"+annaMedia.focalPoint:undefined} class={className} src={base+'-1440.webp'} srcset={[640,960,1440].map(w=>base+'-'+w+'.webp '+w+'w').join(', ')} sizes={eager?"100vw":sizes} width="1440" height={name==="palazzo"?"2160":"960"} alt={name==="palazzo"?annaMedia.alt:alt} loading={eager?'eager':'lazy'} fetchpriority={eager?'high':'auto'} decoding="async" />
+<picture>
+ {mobileBase&&<source media="(max-width: 767px)" type="image/avif" srcset={srcset(mobileBase,'avif')} sizes="100vw" width={mobileWidth} height={mobileHeight}/>}
+ {mobileBase&&<source media="(max-width: 767px)" type="image/webp" srcset={srcset(mobileBase,'webp')} sizes="100vw" width={mobileWidth} height={mobileHeight}/>}
+ {customBase&&<source type="image/avif" srcset={srcset(base,'avif')} sizes={eager?'100vw':sizes}/>}
+ <source type="image/webp" srcset={srcset(base,'webp')} sizes={eager?'100vw':sizes}/>
+ <img class={className} src={base+'-1440.webp'} srcset={srcset(base,'webp')} sizes={eager?'100vw':sizes} width={width} height={height} alt={alt} loading={eager?'eager':'lazy'} fetchpriority={eager?'high':'auto'} decoding="async" />
+</picture>

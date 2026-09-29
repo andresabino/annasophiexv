@@ -91,11 +91,13 @@ Defina também `ADMIN_TOKEN_ENCRYPTION_KEY` com 32 bytes em base64. O banco cont
 
 ## Imagens e Cloudflare R2
 
-A fotografia principal da Anna Sophie usa o original `assets/source/anna-main.jpeg`, com versões WebP responsivas em 640/960/1440 e Open Graph atualizado. As demais composições visuais foram geradas especificamente para a V3. A imagem de referência não é usada como background de interface; os originais de design ficam em `assets/source` (fora de `public`).
+O ensaio oficial da Anna Sophie está em `public/images/anna/final/ensaio`. A V3 usa esse conjunto como fonte única para o hero, retrato editorial, cena do palacete, Save the Date, galeria e Open Graph. Os recortes de desktop e celular ficam em `public/images/anna/final/curated`, com AVIF e WebP responsivos; as miniaturas da galeria ficam em `public/images/anna/final/gallery`.
 
 ```powershell
-node scripts/images.mjs
+npm run media:curate
 ```
+
+Os papéis e pontos focais das imagens são centralizados em `src/lib/media.ts`. Para atualizar o ensaio, substitua os JPGs oficiais preservando a nomenclatura e execute novamente o comando acima; o gerador recria os recortes, miniaturas e a imagem Open Graph. Imagens decorativas legadas continuam sendo processadas separadamente por `node scripts/images.mjs`.
 
 Para as fotos oficiais e arquivos pesados, configure R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME e R2_PUBLIC_URL no .env. O bucket deve ter domínio público de leitura das imagens (custom domain ou URL R2 configurada), sem expor credenciais.
 
@@ -106,8 +108,6 @@ npm run media:upload -- "C:\Fotos\ensaio.jpg" anna-sophie "Ensaio da Anna Sophie
 O comando gera WebP e thumbnail, envia ao R2 e salva somente URLs/metadados no PostgreSQL. São preparados os álbuns Anna Sophie, Família, Amigos, Cerimônia, Valsa, Baile, Pista, Detalhes e Bastidores. A galeria lê os registros ativos e oferece filtro e ampliação por teclado.
 
 Se as fotos forem colocadas no R2 manualmente, cadastre suas URLs em photos (image_url, thumbnail_url, album_id, title, sort_order, active). Não grave imagens binárias no PostgreSQL.
-
-A fotografia da protagonista é centralizada em `src/lib/media.ts`: `base`, `focalPoint`, `alt` e `placeholder`. Para uma substituição futura, atualize `assets/source/anna-main.jpeg` e execute `node scripts/images.mjs`; o layout, as animações, as versões responsivas e a imagem Open Graph são preservados.
 
 ## Presentes e PIX
 

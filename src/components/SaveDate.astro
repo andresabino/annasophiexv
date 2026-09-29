@@ -1,9 +1,13 @@
 ---
 import {siteUrl} from '../lib/config';
+import Picture from './Picture.astro';
+import {annaMedia} from '../lib/media';
+import '../styles/save-date-impact.css';
 const shareUrl=siteUrl()+'/save-the-date';
 const google='https://calendar.google.com/calendar/render?'+new URLSearchParams({action:'TEMPLATE',text:'Anna Sophie — XV Anos',dates:'20261206T203000Z/20261206T203000Z',ctz:'America/Sao_Paulo',location:'Estação 840, Avenida Marechal Rondon, 840, Osasco/SP',details:'Baile de Máscaras Venezianas.'});
 ---
-<section class="save-scene">
+<section class="save-scene save-impact">
+<div class="save-photo" aria-hidden="true"><Picture {...annaMedia.saveTheDate} eager/></div>
 <div class="door door-left" aria-hidden="true"><i></i></div><div class="door door-right" aria-hidden="true"><i></i></div><div class="door-light" aria-hidden="true"></div>
 <div class="save-card" data-reveal><p class="eyebrow">UM CONVITE AO EXTRAORDINÁRIO</p><p class="script">Reserve esta noite.</p><h1>Anna <em>Sophie</em></h1><div class="ornament" aria-hidden="true">──── ✧ ────</div><p class="roman">XV</p><p class="eyebrow">DOMINGO</p><p class="date-line">06 <span>•</span> 12 <span>•</span> 2026</p><p class="save-time">17H30</p><p class="eyebrow venue-label">ESTAÇÃO 840 · OSASCO</p><p class="save-note">Entre máscaras, luzes e sonhos,<br/>uma noite especial está sendo preparada.</p><a class="button gold" href="/evento.ics">Adicionar ao calendário <span>↓</span></a><div class="quiet-actions"><a href={google} target="_blank" rel="noopener noreferrer">Google Calendar ↗</a><button data-share>Compartilhar ↗</button></div><div class="quiet-actions"><button data-copy={shareUrl}>Copiar link</button></div><a class="text-link" href="/#convite-completo">Ver convite completo ↓</a></div>
 <div class="save-bottom"><span>BAILE DE MÁSCARAS VENEZIANAS</span><span>UMA NOVA HISTÓRIA ESTÁ POR COMEÇAR</span></div>

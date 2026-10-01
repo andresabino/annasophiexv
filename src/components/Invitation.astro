@@ -4,6 +4,7 @@ import PalazzoIntro from './PalazzoIntro.astro';
 import {EVENT_START} from '../lib/lifecycle';
 import {annaMedia} from '../lib/media';
 import '../styles/cinematic-invitation.css';
+import '../styles/wax-intro.css';
 const {phase,gifts,rsvp,preview}=Astro.props;
 const previewQuery=preview?'?previewPhase='+Astro.url.searchParams.get('previewPhase'):'';
 ---

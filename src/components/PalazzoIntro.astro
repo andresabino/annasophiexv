@@ -1,60 +1,73 @@
----
-import InvitationAudio from './InvitationAudio.astro';
----
-<div class="palazzo-intro wax-intro" data-palazzo-intro role="dialog" aria-modal="true" aria-labelledby="wax-title">
- <div class="wax-backdrop" aria-hidden="true"></div>
- <div class="wax-vignette" aria-hidden="true"></div>
- <div class="wax-dust" aria-hidden="true">{Array.from({length:14},(_,index)=><i style={`--i:${index}`}></i>)}</div>
-
- <header class="wax-heading">
-  <p id="wax-title">Um convite reservado a você</p>
-  <span aria-hidden="true"><i></i>◆<i></i></span>
- </header>
-
- <div class="envelope-stage">
-  <div class="envelope-card" aria-hidden="true">
-   <small>Baile de Máscaras Venezianas</small>
-   <strong>Anna Sophie</strong>
-   <b>XV</b>
-   <span>Uma noite extraordinária</span>
+<div class="palazzo-intro wax-intro video-intro" data-palazzo-intro role="dialog" aria-modal="true" aria-labelledby="wax-title">
+ <video class="video-intro-media" data-intro-video preload="auto" playsinline>
+  <source src="/Videos/Abertura-Convite.mp4" type="video/mp4"/>
+ </video>
+ <div class="envelope-layer" data-envelope-layer>
+  <div class="wax-backdrop" aria-hidden="true"></div>
+  <div class="wax-vignette" aria-hidden="true"></div>
+  <div class="wax-dust" aria-hidden="true">{Array.from({length:14},(_,index)=><i style={`--i:${index}`}></i>)}</div>
+  <header class="wax-heading">
+   <p id="wax-title">Um convite reservado a você</p>
+   <span aria-hidden="true"><i></i>◆<i></i></span>
+  </header>
+  <div class="envelope-stage">
+   <div class="envelope-card" aria-hidden="true">
+    <small>Baile de Máscaras Venezianas</small>
+    <strong>Anna Sophie</strong>
+    <b>XV</b>
+    <span>Sonhe · Viva · Brilhe</span>
+   </div>
+   <div class="envelope-back" aria-hidden="true"></div>
+   <div class="envelope-flap" aria-hidden="true"><span class="flap-crest">AS<small>XV</small></span></div>
+   <div class="envelope-pocket" aria-hidden="true">
+    <span class="foil-corner foil-tl"></span><span class="foil-corner foil-tr"></span>
+    <span class="foil-corner foil-bl"></span><span class="foil-corner foil-br"></span>
+   </div>
+   <div class="envelope-sheen" aria-hidden="true"></div>
+   <div class="envelope-ribbon ribbon-left"></div>
+   <div class="envelope-ribbon ribbon-right"></div>
+   <button class="wax-seal" type="button" data-enter-palazzo aria-label="Romper o selo e abrir o vídeo do convite">
+    <span class="seal-disc seal-left"><span class="seal-monogram">AS<small>XV</small></span></span>
+    <span class="seal-disc seal-right"><span class="seal-monogram">AS<small>XV</small></span></span>
+    <svg class="seal-cracks" viewBox="0 0 120 120" aria-hidden="true">
+     <path pathLength="1" d="M60 8 56 31 65 43 57 57 63 72 55 88 60 112"/>
+     <path pathLength="1" d="M59 56 42 48 31 53"/>
+     <path pathLength="1" d="M62 72 78 64 91 69"/>
+    </svg>
+   </button>
   </div>
-  <div class="envelope-back" aria-hidden="true"></div>
-  <div class="envelope-flap" aria-hidden="true">
-   <span class="flap-crest">AS<small>XV</small></span>
-  </div>
-  <div class="envelope-pocket" aria-hidden="true">
-   <span class="foil-corner foil-tl"></span><span class="foil-corner foil-tr"></span>
-   <span class="foil-corner foil-bl"></span><span class="foil-corner foil-br"></span>
-  </div>
-  <div class="envelope-sheen" aria-hidden="true"></div>
-  <div class="envelope-ribbon ribbon-left"></div>
-  <div class="envelope-ribbon ribbon-right"></div>
-  <button class="wax-seal" type="button" data-enter-palazzo aria-label="Romper o selo e abrir o convite">
-   <span class="seal-disc seal-left"><span class="seal-monogram">AS<small>XV</small></span></span>
-   <span class="seal-disc seal-right"><span class="seal-monogram">AS<small>XV</small></span></span>
-   <svg class="seal-cracks" viewBox="0 0 120 120" aria-hidden="true">
-    <path pathLength="1" d="M60 8 56 31 65 43 57 57 63 72 55 88 60 112"/>
-    <path pathLength="1" d="M59 56 42 48 31 53"/>
-    <path pathLength="1" d="M62 72 78 64 91 69"/>
-   </svg>
-  </button>
+  <p class="wax-instruction">Toque para romper o selo <span aria-hidden="true">⌄</span></p>
  </div>
-
- <p class="wax-instruction">Toque para romper o selo <span aria-hidden="true">⌄</span></p>
- <button class="palazzo-skip" type="button" data-skip-intro hidden>Pular</button>
+ <button class="palazzo-skip" type="button" data-skip-intro>Pular abertura</button>
 </div>
-<InvitationAudio/>
 <script>
  const intro=document.querySelector<HTMLElement>('[data-palazzo-intro]');
+ const video=intro?.querySelector<HTMLVideoElement>('[data-intro-video]');
  const enter=intro?.querySelector<HTMLButtonElement>('[data-enter-palazzo]');
  const skip=intro?.querySelector<HTMLButtonElement>('[data-skip-intro]');
- const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
- const isInvitationPreview=new URLSearchParams(location.search).get('previewPhase')==='INVITATION';
+ const heroImage=document.querySelector<HTMLImageElement>('.ballroom-scene img');
+ const heroEyebrow=document.querySelector<HTMLElement>('.ballroom-copy>.eyebrow');
+ document.querySelectorAll('.ballroom-scene source').forEach(source=>source.remove());
+ if(heroImage){heroImage.src='/images/anna/final/ensaio/00014.jpg';heroImage.removeAttribute('srcset');heroImage.removeAttribute('sizes');heroImage.width=2496;heroImage.height=3744;heroImage.alt='Anna Sophie em seu ensaio de quinze anos'}
+ if(heroEyebrow)heroEyebrow.textContent='SONHE · VIVA · BRILHE';
  const background=[...document.querySelectorAll<HTMLElement>('body > header, body > nav, body > footer, #main > :not([data-palazzo-intro])')];
- background.forEach(element=>{element.inert=true;element.setAttribute('aria-hidden','true')});
- let timer=0;
- const finish=(immediate=false)=>{if(!intro)return;window.clearTimeout(timer);intro.classList.add(immediate?'is-skipped':'is-complete');intro.setAttribute('aria-hidden','true');background.forEach(element=>{element.inert=false;element.removeAttribute('aria-hidden')});document.body.classList.add('palazzo-entered');window.setTimeout(()=>intro.remove(),immediate?50:850)};
- try{if(!isInvitationPreview&&sessionStorage.getItem('annaInvitationIntroSeen')==='true')finish(true)}catch{}
- enter?.addEventListener('click',()=>{if(intro?.classList.contains('is-opening'))return;try{sessionStorage.setItem('annaInvitationIntroSeen','true')}catch{}enter.disabled=true;window.dispatchEvent(new CustomEvent('invitation:enter'));intro?.classList.add('is-opening');if(skip)skip.hidden=false;timer=window.setTimeout(()=>finish(),reduced?700:5200)});
- skip?.addEventListener('click',()=>finish());
+ let frame=0;
+ let openingTimer=0;
+ let started=false;
+ let videoActive=false;
+ let revealed=false;
+ const setBackgroundAvailable=(available:boolean)=>background.forEach(element=>{element.inert=!available;if(available)element.removeAttribute('aria-hidden');else element.setAttribute('aria-hidden','true')});
+ const removeIntro=()=>{if(!intro)return;cancelAnimationFrame(frame);window.clearTimeout(openingTimer);setBackgroundAvailable(true);document.body.classList.add('palazzo-entered');intro.remove()};
+ const revealSite=()=>{if(!intro||revealed)return;revealed=true;intro.classList.add('is-revealing');intro.setAttribute('aria-hidden','true');setBackgroundAvailable(true);document.body.classList.add('palazzo-entered')};
+ const watchEnding=()=>{if(!video)return;if(Number.isFinite(video.duration)&&video.duration-video.currentTime<=3)revealSite();if(!video.ended)frame=requestAnimationFrame(watchEnding)};
+ const showVideo=async()=>{if(!intro||!video||revealed)return;video.currentTime=0;video.volume=1;try{await video.play();videoActive=true;intro.classList.add('is-video-active');frame=requestAnimationFrame(watchEnding)}catch{started=false;enter?.removeAttribute('disabled')}};
+ let seen=false;
+ try{seen=sessionStorage.getItem('annaInvitationIntroSeen')==='true';if(!seen)sessionStorage.setItem('annaInvitationIntroSeen','true')}catch{}
+ if(seen){removeIntro()}else{
+  setBackgroundAvailable(false);
+  enter?.focus({preventScroll:true});
+  enter?.addEventListener('click',async()=>{if(!video||started)return;started=true;enter.disabled=true;video.muted=false;video.volume=0;window.dispatchEvent(new CustomEvent('invitation:enter'));try{await video.play();video.pause();video.currentTime=0;intro?.classList.add('is-opening');openingTimer=window.setTimeout(showVideo,4400)}catch{started=false;enter.disabled=false}});
+  skip?.addEventListener('click',()=>{if(videoActive)revealSite();else{video?.pause();removeIntro()}});
+  video?.addEventListener('ended',removeIntro,{once:true});
+ }
 </script>

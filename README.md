@@ -109,6 +109,13 @@ O comando gera WebP e thumbnail, envia ao R2 e salva somente URLs/metadados no P
 
 A galeria complementar dos convidados usa as mesmas credenciais R2, mas grava em `anna-sophie/guest-gallery/AAAA/MM/DD`. O servidor valida o conteúdo real de JPG, PNG e WebP, limita cada arquivo a 10 MB, converte para WebP e cria miniatura. Os envios entram como `PENDING` e só aparecem em `/galeria` depois da aprovação em `/admin/galeria`. O envio aceita até 10 fotos por requisição, funciona por padrão apenas em `EVENT_DAY` e `POST_EVENT` e pode ser interrompido no painel. A rota estável para o QR Code é `/galeria/compartilhar`.
 
+Para abrir os envios em uma janela independente da fase do site, configure datas ISO com fuso explícito. Se `GUEST_GALLERY_UPLOADS_STARTS_AT` não estiver definida, permanece valendo o padrão `EVENT_DAY`/`POST_EVENT`. O encerramento é opcional e exclusivo:
+
+```env
+GUEST_GALLERY_UPLOADS_STARTS_AT=2026-10-02T00:00:00-03:00
+GUEST_GALLERY_UPLOADS_ENDS_AT=2026-12-31T23:59:59-03:00
+```
+
 Se as fotos forem colocadas no R2 manualmente, cadastre suas URLs em photos (image_url, thumbnail_url, album_id, title, sort_order, active). Não grave imagens binárias no PostgreSQL.
 
 ## Presentes e PIX

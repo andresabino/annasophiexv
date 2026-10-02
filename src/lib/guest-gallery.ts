@@ -1,6 +1,6 @@
 import sharp,{type Metadata} from 'sharp';
 import {database,EVENT_SLUG} from './db';
-import type {Phase} from './lifecycle';
+import {parseDate,type Phase} from './lifecycle';
 import {deleteStoredObjects,uploadGuestPhoto} from './storage';
 import {audit} from './admin/audit';
 import type {AdminUser} from './admin/auth';
@@ -8,8 +8,20 @@ import type {AdminUser} from './admin/auth';
 export const MAX_GUEST_PHOTOS=10;
 export const MAX_GUEST_PHOTO_BYTES=10*1024*1024;
 export type GuestPhotoStatus='PENDING'|'APPROVED'|'REJECTED';
+export type GuestGalleryUploadWindow={startsAt:string|null;endsAt:string|null};
 
-export function guestGalleryCanUpload(phase:Phase,enabled:boolean){return enabled&&(phase==='EVENT_DAY'||phase==='POST_EVENT')}
+export function guestGalleryUploadWindow():GuestGalleryUploadWindow{
+ const startsAt=parseDate(process.env.GUEST_GALLERY_UPLOADS_STARTS_AT);
+ const endsAt=parseDate(process.env.GUEST_GALLERY_UPLOADS_ENDS_AT);
+ if(!startsAt&&endsAt)throw new Error('GUEST_GALLERY_UPLOADS_ENDS_AT exige GUEST_GALLERY_UPLOADS_STARTS_AT.');
+ if(startsAt&&endsAt&&Date.parse(endsAt)<=Date.parse(startsAt))throw new Error('O encerramento dos envios deve ser posterior à abertura.');
+ return {startsAt,endsAt};
+}
+export function guestGalleryCanUpload(phase:Phase,enabled:boolean,now=new Date(),window=guestGalleryUploadWindow()){
+ if(!enabled)return false;
+ if(window.startsAt)return now.getTime()>=Date.parse(window.startsAt)&&(!window.endsAt||now.getTime()<Date.parse(window.endsAt));
+ return phase==='EVENT_DAY'||phase==='POST_EVENT';
+}
 export function guestGalleryCanView(phase:Phase){return phase==='POST_EVENT'}
 
 export async function guestGallerySettings(){

@@ -6,3 +6,8 @@ dist/
 !.env.example
 .local/
 *.log
+# Artefatos exclusivos da VPS
+backups/
+anna-sophie-old/
+anna-sophie/
+compose.local-main.yaml

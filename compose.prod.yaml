@@ -1,0 +1,46 @@
+name: anna-sophie
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: anna-sophie-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      default:
+        aliases:
+          - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: anna-sophie-site:latest
+    container_name: anna-sophie-site
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "4321"
+    networks:
+      - default
+
+networks:
+  default:
+    name: anna-sophie
+    external: true
+
+volumes:
+  postgres-data:
+    name: anna-sophie-postgres-data
+    external: true

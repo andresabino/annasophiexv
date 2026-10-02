@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+!.env.example
+node_modules
+dist
+.astro
+backups
+anna-sophie-old
+anna-sophie
+*.log

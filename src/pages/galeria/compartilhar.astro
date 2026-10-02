@@ -1,0 +1,34 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {siteState} from '../../lib/config';
+import {guestGalleryCanUpload,guestGallerySettings} from '../../lib/guest-gallery';
+const state=await siteState(Astro.url);
+const settings=await guestGallerySettings();
+const canUpload=guestGalleryCanUpload(state.phase,settings.enabled);
+---
+<Layout {...state} privatePage title="Enviar fotos — Galeria da Festa">
+ <section class="upload-page">
+  <div class="upload-card">
+   <p class="eyebrow">GALERIA DA FESTA</p><h1>Compartilhe seus momentos</h1><p>Escolha até 10 fotos do seu celular. Cada arquivo pode ter até 10 MB.</p>
+   {canUpload?<form id="guest-upload-form" enctype="multipart/form-data">
+    <label class="upload-name"><span>Seu nome <small>(opcional)</small></span><input name="uploaderName" maxlength="80" autocomplete="name" placeholder="Como deseja aparecer na galeria"/></label>
+    <label class="upload-picker"><input id="guest-photos" name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple required/><span>Selecionar fotos</span><small>JPG, PNG ou WebP · máximo de 10</small></label>
+    <ol class="upload-list" aria-live="polite"></ol>
+    <button class="button burgundy" type="submit" disabled>Enviar fotos <span>→</span></button>
+    <div class="upload-result" role="status" aria-live="polite"></div>
+   </form>:<div class="notice"><strong>O envio de fotos não está disponível neste momento.</strong><p>Você ainda pode voltar à Galeria da Festa para acompanhar os registros aprovados.</p></div>}
+   <a class="text-link" href="/galeria">← Voltar para a galeria</a>
+  </div>
+ </section>
+</Layout>
+{canUpload&&<script>
+ const form=document.querySelector<HTMLFormElement>('#guest-upload-form')!;
+ const input=document.querySelector<HTMLInputElement>('#guest-photos')!;
+ const list=document.querySelector<HTMLOListElement>('.upload-list')!;
+ const submit=form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+ const result=document.querySelector<HTMLElement>('.upload-result')!;
+ let selected:File[]=[];
+ const render=()=>{list.innerHTML='';selected.forEach((file,index)=>{const item=document.createElement('li');item.dataset.index=String(index);item.innerHTML=`<span><b></b><small></small></span><i>Aguardando</i>`;item.querySelector('b')!.textContent=file.name;item.querySelector('small')!.textContent=(file.size/1024/1024).toLocaleString('pt-BR',{maximumFractionDigits:1})+' MB';list.append(item)});submit.disabled=!selected.length};
+ input.addEventListener('change',()=>{result.textContent='';const files=Array.from(input.files||[]);if(files.length>10){result.textContent='Selecione no máximo 10 fotos.';result.className='upload-result error';input.value='';selected=[]}else{selected=files;const tooLarge=files.find(file=>file.size>10*1024*1024);if(tooLarge){result.textContent=`${tooLarge.name} ultrapassa o limite de 10 MB.`;result.className='upload-result error'}}render()});
+ form.addEventListener('submit',async event=>{event.preventDefault();if(!selected.length)return;submit.disabled=true;result.textContent='Enviando fotos…';result.className='upload-result';list.querySelectorAll('i').forEach(status=>status.textContent='Enviando…');const body=new FormData();body.set('uploaderName',String(new FormData(form).get('uploaderName')||''));selected.forEach(file=>body.append('photos',file,file.name));try{const response=await fetch('/api/galeria/upload',{method:'POST',body});const data=await response.json();if(Array.isArray(data.results))data.results.forEach((entry:{ok:boolean;error?:string},index:number)=>{const status=list.querySelectorAll('i')[index];if(status){status.textContent=entry.ok?'Enviada':entry.error||'Falhou';status.className=entry.ok?'ok':'error'}});result.textContent=data.message||data.error||'Não foi possível concluir o envio.';result.className='upload-result '+(data.accepted?'success':'error');if(data.accepted){input.value='';selected=[]}}catch{result.textContent='A conexão foi interrompida. Tente novamente.';result.className='upload-result error';list.querySelectorAll('i').forEach(status=>status.textContent='Falhou')}finally{submit.disabled=!selected.length}});
+</script>}

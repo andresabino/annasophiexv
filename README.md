@@ -69,8 +69,8 @@ O preview não abre gravações RSVP. O build de produção ignora o parâmetro.
 
 ## Rotas
 
-/, /save-the-date, /confirmar-presenca/[token], /presentes, /fotos, /obrigado.
-Também: /evento.ics, /sitemap.xml, /robots.txt e /api/state.
+/, /save-the-date, /confirmar-presenca/[token], /presentes, /fotos, /galeria, /galeria/compartilhar e /obrigado.
+Também: /evento.ics, /sitemap.xml, /robots.txt, /api/state e /api/galeria/upload.
 Links antigos mostram mensagens apropriadas, incluindo depois da festa.
 
 ## Administração
@@ -106,6 +106,8 @@ npm run media:upload -- "C:\Fotos\ensaio.jpg" anna-sophie "Ensaio da Anna Sophie
 ```
 
 O comando gera WebP e thumbnail, envia ao R2 e salva somente URLs/metadados no PostgreSQL. São preparados os álbuns Anna Sophie, Família, Amigos, Cerimônia, Valsa, Baile, Pista, Detalhes e Bastidores. A galeria lê os registros ativos e oferece filtro e ampliação por teclado.
+
+A galeria complementar dos convidados usa as mesmas credenciais R2, mas grava em `anna-sophie/guest-gallery/AAAA/MM/DD`. O servidor valida o conteúdo real de JPG, PNG e WebP, limita cada arquivo a 10 MB, converte para WebP e cria miniatura. Os envios entram como `PENDING` e só aparecem em `/galeria` depois da aprovação em `/admin/galeria`. O envio aceita até 10 fotos por requisição, funciona por padrão apenas em `EVENT_DAY` e `POST_EVENT` e pode ser interrompido no painel. A rota estável para o QR Code é `/galeria/compartilhar`.
 
 Se as fotos forem colocadas no R2 manualmente, cadastre suas URLs em photos (image_url, thumbnail_url, album_id, title, sort_order, active). Não grave imagens binárias no PostgreSQL.
 

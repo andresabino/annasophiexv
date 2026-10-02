@@ -1,0 +1,29 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import {assertCsrf} from '../../lib/admin/auth';
+import {deleteGuestPhoto,listGuestPhotos,moderateGuestPhoto,setGuestGalleryUploads,type GuestPhotoStatus} from '../../lib/guest-gallery';
+import {database} from '../../lib/db';
+const user=(Astro.locals as any).admin,csrf=(Astro.locals as any).csrf,sessionToken=(Astro.locals as any).sessionToken;
+const validStatuses:GuestPhotoStatus[]=['PENDING','APPROVED','REJECTED'];
+const requested=String(Astro.url.searchParams.get('status')||'PENDING').toUpperCase();
+const status:GuestPhotoStatus=validStatuses.includes(requested as GuestPhotoStatus)?requested as GuestPhotoStatus:'PENDING';
+let error='',success='';
+if(Astro.request.method==='POST')try{
+ const form=await Astro.request.formData();assertCsrf(form,sessionToken);const action=String(form.get('action'));
+ if(action==='settings'){await setGuestGalleryUploads(form.get('enabled')==='true',user);success=form.get('enabled')==='true'?'Envios habilitados.':'Envios desabilitados.'}
+ else if(action==='delete'){await deleteGuestPhoto(Number(form.get('photo_id')),user);success='Foto excluída do R2 e do banco.'}
+ else if(['APPROVE','REJECT','FEATURE','UNFEATURE'].includes(action)){await moderateGuestPhoto(Number(form.get('photo_id')),action as any,user);success='Foto atualizada.'}
+ else throw new Error('Ação inválida.');
+}catch(e){if(e instanceof Response)throw e;error=e instanceof Error?e.message:'Não foi possível atualizar a galeria.'}
+const photos=await listGuestPhotos(user.eventId,status);
+const {rows:[settings]}=await database().query('SELECT guest_gallery_uploads_enabled enabled FROM events WHERE id=$1',[user.eventId]);
+const {rows:countsRows}=await database().query(`SELECT status,count(*)::int total FROM guest_photos WHERE event_id=$1 GROUP BY status`,[user.eventId]);
+const counts=Object.fromEntries(countsRows.map((row:any)=>[row.status,row.total]));
+const labels={PENDING:'Pendentes',APPROVED:'Aprovadas',REJECTED:'Rejeitadas'};
+---
+<AdminLayout title="Galeria">
+ <header class="page-head"><div><p class="eyebrow">FOTOS DOS CONVIDADOS</p><h1>Galeria</h1></div><form method="post" class="gallery-setting"><input type="hidden" name="_csrf" value={csrf}/><input type="hidden" name="action" value="settings"/><input type="hidden" name="enabled" value={String(!settings.enabled)}/><span>Envios {settings.enabled?'habilitados':'desabilitados'}</span><button class:list={['btn','small',settings.enabled?'danger':'secondary']}>{settings.enabled?'Desabilitar':'Habilitar'}</button></form></header>
+ {success&&<p class="notice">{success}</p>}{error&&<p class="notice error">{error}</p>}
+ <nav class="gallery-tabs" aria-label="Filtrar fotos">{validStatuses.map(value=><a class:list={[status===value&&'active']} href={`/admin/galeria?status=${value}`}>{labels[value]} <b>{counts[value]||0}</b></a>)}</nav>
+ {photos.length?<section class="admin-photo-grid">{photos.map((photo:any)=><article><img src={photo.thumbnail_url} alt="Miniatura enviada por convidado" width="320" height="240" loading="lazy"/><div><span class:list={['badge',photo.status==='APPROVED'?'ok':photo.status==='REJECTED'?'danger':'warn']}>{labels[photo.status as GuestPhotoStatus]}</span>{photo.featured&&<span class="badge featured-badge">Destaque</span>}<h2>{photo.uploader_name||'Remetente não informado'}</h2><p>{new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date(photo.submitted_at))}</p><form method="post" class="photo-actions"><input type="hidden" name="_csrf" value={csrf}/><input type="hidden" name="photo_id" value={photo.id}/>{photo.status!=='APPROVED'&&<button class="btn small" name="action" value="APPROVE">Aprovar</button>}{photo.status!=='REJECTED'&&<button class="btn small secondary" name="action" value="REJECT">Rejeitar</button>}{photo.status==='APPROVED'&&<button class="btn small secondary" name="action" value={photo.featured?'UNFEATURE':'FEATURE'}>{photo.featured?'Remover destaque':'Destacar'}</button>}<button class="btn small danger" name="action" value="delete" onclick="return confirm('Excluir permanentemente esta foto do R2 e do banco?')">Excluir</button></form></div></article>)}</section>:<section class="panel"><p class="empty">Nenhuma foto em “{labels[status].toLowerCase()}”.</p></section>}
+</AdminLayout>

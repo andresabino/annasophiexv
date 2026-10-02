@@ -1,0 +1,13 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import GuestGalleryView from '../../../components/GuestGalleryView.astro';
+import {approvedGuestPhotos,guestGalleryCanUpload,guestGallerySettings} from '../../../lib/guest-gallery';
+import type {Phase} from '../../../lib/lifecycle';
+const phase:Phase='POST_EVENT';
+const [photos,settings]=await Promise.all([approvedGuestPhotos(),guestGallerySettings()]);
+const canUpload=guestGalleryCanUpload(phase,settings.enabled);
+---
+<Layout title="Prévia da Galeria da Festa — Anna Sophie XV" {phase} privatePage guestGallery liveState={false}>
+ <aside class="admin-gallery-preview-bar"><span>Prévia administrativa · fase simulada: pós-evento</span><a href="/admin/galeria">← Voltar para administração</a></aside>
+ <GuestGalleryView {phase} {canUpload} canView={true} {photos}/>
+</Layout>

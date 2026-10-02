@@ -1,0 +1,22 @@
+---
+import type {Phase} from '../lib/lifecycle';
+type Photo={id:number;image_url:string;thumbnail_url:string;uploader_name:string|null;submitted_at:string;featured:boolean};
+interface Props{phase:Phase;canUpload:boolean;canView:boolean;photos:Photo[]}
+const {phase,canUpload,canView,photos}=Astro.props;
+---
+<section class="guest-gallery-hero">
+ <p class="eyebrow">BAILE DE MÁSCARAS · ANNA SOPHIE XV</p>
+ <h1>Galeria da Festa</h1>
+ <p>Registre e compartilhe seus melhores momentos</p>
+ {canUpload&&<a class="button gold" href="/galeria/compartilhar">Enviar fotos <span>→</span></a>}
+ {!canUpload&&phase!=='POST_EVENT'&&<p class="gallery-availability">O envio será aberto no dia da festa.</p>}
+ {!canUpload&&phase==='POST_EVENT'&&<p class="gallery-availability">O envio de novas fotos está temporariamente encerrado.</p>}
+</section>
+{canView?<>{photos.length?<section class="guest-photo-grid" aria-label="Fotos compartilhadas pelos convidados">{photos.map(photo=><figure class:list={[photo.featured&&'featured']}><button type="button" data-guest-photo={photo.image_url} data-guest-caption={photo.uploader_name?`Foto enviada por ${photo.uploader_name}`:'Foto compartilhada por convidado'} aria-label="Ampliar foto"><img src={photo.thumbnail_url} alt={photo.uploader_name?`Momento da festa compartilhado por ${photo.uploader_name}`:'Momento compartilhado por convidado'} loading="lazy" width="720" height="720"/></button>{photo.uploader_name&&<figcaption>Por {photo.uploader_name}</figcaption>}</figure>)}</section>:<section class="guest-gallery-empty"><div class="mask-ornament" aria-hidden="true">✦</div><h2>Os primeiros registros ainda estão por vir</h2><p>As fotos aprovadas aparecerão aqui para revivermos juntos cada instante da celebração.</p>{canUpload&&<a class="button outline" href="/galeria/compartilhar">Compartilhar um momento</a>}</section>}</>:<section class="guest-gallery-empty"><div class="mask-ornament" aria-hidden="true">✦</div><h2>Uma noite para guardar</h2><p>A galeria será revelada após o baile, com os melhores momentos compartilhados pelos convidados.</p></section>}
+<dialog class="guest-lightbox" aria-label="Foto ampliada"><button class="guest-lightbox-close" aria-label="Fechar foto">×</button><img alt="" width="1400" height="1000"/><p></p></dialog>
+<script>
+ const dialog=document.querySelector<HTMLDialogElement>('.guest-lightbox')!;
+ document.querySelectorAll<HTMLButtonElement>('[data-guest-photo]').forEach(button=>button.addEventListener('click',()=>{const image=dialog.querySelector('img')!;image.src=button.dataset.guestPhoto||'';image.alt=button.dataset.guestCaption||'Foto da festa';dialog.querySelector('p')!.textContent=button.dataset.guestCaption||'';dialog.showModal()}));
+ dialog.querySelector<HTMLButtonElement>('.guest-lightbox-close')?.addEventListener('click',()=>dialog.close());
+ dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
+</script>

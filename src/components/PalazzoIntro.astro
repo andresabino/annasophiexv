@@ -56,18 +56,15 @@
  let started=false;
  let videoActive=false;
  let revealed=false;
+ let finished=false;
  const setBackgroundAvailable=(available:boolean)=>background.forEach(element=>{element.inert=!available;if(available)element.removeAttribute('aria-hidden');else element.setAttribute('aria-hidden','true')});
- const removeIntro=()=>{if(!intro)return;cancelAnimationFrame(frame);window.clearTimeout(openingTimer);setBackgroundAvailable(true);document.body.classList.add('palazzo-entered');intro.remove()};
+ const removeIntro=()=>{if(!intro||finished)return;finished=true;cancelAnimationFrame(frame);window.clearTimeout(openingTimer);setBackgroundAvailable(true);document.body.classList.add('palazzo-entered');intro.remove();window.dispatchEvent(new CustomEvent('invitation:opened'))};
  const revealSite=()=>{if(!intro||revealed)return;revealed=true;intro.classList.add('is-revealing');intro.setAttribute('aria-hidden','true');setBackgroundAvailable(true);document.body.classList.add('palazzo-entered')};
  const watchEnding=()=>{if(!video)return;if(Number.isFinite(video.duration)&&video.duration-video.currentTime<=3)revealSite();if(!video.ended)frame=requestAnimationFrame(watchEnding)};
  const showVideo=async()=>{if(!intro||!video||revealed)return;video.currentTime=0;video.volume=1;try{await video.play();videoActive=true;intro.classList.add('is-video-active');frame=requestAnimationFrame(watchEnding)}catch{started=false;enter?.removeAttribute('disabled')}};
- let seen=false;
- try{seen=sessionStorage.getItem('annaInvitationIntroSeen')==='true';if(!seen)sessionStorage.setItem('annaInvitationIntroSeen','true')}catch{}
- if(seen){removeIntro()}else{
-  setBackgroundAvailable(false);
-  enter?.focus({preventScroll:true});
-  enter?.addEventListener('click',async()=>{if(!video||started)return;started=true;enter.disabled=true;video.muted=false;video.volume=0;window.dispatchEvent(new CustomEvent('invitation:enter'));try{await video.play();video.pause();video.currentTime=0;intro?.classList.add('is-opening');openingTimer=window.setTimeout(showVideo,4400)}catch{started=false;enter.disabled=false}});
-  skip?.addEventListener('click',()=>{if(videoActive)revealSite();else{video?.pause();removeIntro()}});
-  video?.addEventListener('ended',removeIntro,{once:true});
- }
+ setBackgroundAvailable(false);
+ enter?.focus({preventScroll:true});
+ enter?.addEventListener('click',async()=>{if(!video||started)return;started=true;enter.disabled=true;video.muted=false;video.volume=0;window.dispatchEvent(new CustomEvent('invitation:enter'));try{await video.play();video.pause();video.currentTime=0;intro?.classList.add('is-opening');openingTimer=window.setTimeout(showVideo,4400)}catch{started=false;enter.disabled=false}});
+ skip?.addEventListener('click',()=>{if(videoActive)revealSite();else{video?.pause();removeIntro()}});
+ video?.addEventListener('ended',removeIntro,{once:true});
 </script>

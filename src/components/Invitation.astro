@@ -1,6 +1,7 @@
 ---
 import Picture from './Picture.astro';
 import PalazzoIntro from './PalazzoIntro.astro';
+import InvitationAudio from './InvitationAudio.astro';
 import {EVENT_START} from '../lib/lifecycle';
 import {annaMedia} from '../lib/media';
 import '../styles/cinematic-invitation.css';
@@ -8,6 +9,7 @@ import '../styles/wax-intro.css';
 const {phase,gifts,rsvp,preview}=Astro.props;
 const previewQuery=preview?'?previewPhase='+Astro.url.searchParams.get('previewPhase'):'';
 ---
+<InvitationAudio/>
 <PalazzoIntro/>
 <section id="baile" class="ballroom-scene" tabindex="-1"><Picture {...annaMedia.hero} eager sizes="100vw"/><div class="ballroom-shade"></div><div class="ballroom-copy" data-reveal><p class="eyebrow">AS PORTAS DO PALAZZO SE ABRIRAM</p><h1>Bem-vindo ao meu<br/><em>Baile de Máscaras.</em></h1><p>Uma noite de luz, música e histórias inesquecíveis.</p><span>ANNA SOPHIE · XV</span></div><a class="scene-scroll" href="#anna">Atravesse o salão <span>↓</span></a></section>
 <section class="countdown-section"><p class="eyebrow">{phase==='EVENT_DAY'?'ESTA NOITE É NOSSA':'O BAILE SE APROXIMA...'}</p>{phase==='EVENT_DAY'?<h2>O baile começou.</h2>:<div class="countdown" data-countdown={EVENT_START} aria-label="Contagem regressiva para o baile">{['dias','horas','minutos','segundos'].map((label,i)=><div><strong data-unit={i}>—</strong><span>{label}</span></div>)}</div>}<div class="ornament" aria-hidden="true">──── ✧ ────</div></section>

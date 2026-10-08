@@ -41,7 +41,7 @@ body:not(.palazzo-entered):has(.palazzo-intro)>.skip{visibility:hidden}
 .seal-monogram small{margin-top:9px;font:clamp(9px,1vw,13px)/1 Arial,sans-serif;letter-spacing:.35em;margin-left:.35em}
 .seal-cracks{position:absolute;z-index:9;inset:5%;width:90%;height:90%;overflow:visible;pointer-events:none}
 .seal-cracks path{fill:none;stroke:#f1c98a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 2px #2b0208)}
-.wax-instruction{position:absolute;z-index:12;left:50%;bottom:8%;transform:translateX(-50%);min-height:44px;margin:0;padding:0 12px;border:0;background:none;color:#edcf96;font:9px/1.5 Arial,sans-serif;letter-spacing:.4em;text-transform:uppercase;text-align:center;white-space:nowrap;text-shadow:0 2px 15px #000;cursor:pointer;transition:opacity .35s ease}
+.wax-instruction{position:absolute;z-index:12;left:50%;bottom:8%;transform:translateX(-50%);min-height:44px;margin:0;padding:0 12px;border:0;background:none;color:#000;font:9px/1.5 Arial,sans-serif;letter-spacing:.4em;text-transform:uppercase;text-align:center;white-space:nowrap;text-shadow:0 2px 15px #000;cursor:pointer;transition:opacity .35s ease}
 .wax-instruction:focus-visible{outline:2px solid #f3d798;outline-offset:4px;border-radius:3px}
 .wax-instruction[disabled]{cursor:default}
 .wax-instruction span{display:block;margin-top:7px;font-size:18px;animation:wax-nudge 1.8s ease-in-out infinite}

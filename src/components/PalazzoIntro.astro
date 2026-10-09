@@ -60,8 +60,16 @@
  let videoActive=false;
  let revealed=false;
  let finished=false;
+ const directRsvp=location.hash==='#rsvp';
+ const holdOpeningAtTop=()=>window.scrollTo(0,0);
+ const previousScrollRestoration='scrollRestoration' in history?history.scrollRestoration:null;
+ if('scrollRestoration' in history)history.scrollRestoration='manual';
+ holdOpeningAtTop();
+ window.addEventListener('load',holdOpeningAtTop,{once:true});
+ window.addEventListener('pageshow',holdOpeningAtTop,{once:true});
  const setBackgroundAvailable=(available:boolean)=>background.forEach(element=>{element.inert=!available;if(available)element.removeAttribute('aria-hidden');else element.setAttribute('aria-hidden','true')});
- const removeIntro=()=>{if(!intro||finished)return;finished=true;cancelAnimationFrame(frame);window.clearTimeout(openingTimer);setBackgroundAvailable(true);document.body.classList.add('palazzo-entered');intro.remove();window.dispatchEvent(new CustomEvent('invitation:opened'))};
+ const navigateToDirectRsvp=()=>{if(!directRsvp)return;requestAnimationFrame(()=>document.querySelector<HTMLElement>('#rsvp')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}))};
+ const removeIntro=()=>{if(!intro||finished)return;finished=true;cancelAnimationFrame(frame);window.clearTimeout(openingTimer);if(previousScrollRestoration)history.scrollRestoration=previousScrollRestoration;setBackgroundAvailable(true);document.body.classList.add('palazzo-entered');intro.remove();window.dispatchEvent(new CustomEvent('invitation:opened'));navigateToDirectRsvp()};
  const revealSite=()=>{if(!intro||revealed)return;revealed=true;intro.classList.add('is-revealing');intro.setAttribute('aria-hidden','true');setBackgroundAvailable(true);document.body.classList.add('palazzo-entered')};
  const watchEnding=()=>{if(!video)return;if(Number.isFinite(video.duration)&&video.duration-video.currentTime<=3)revealSite();if(!video.ended)frame=requestAnimationFrame(watchEnding)};
  const setEnterControlsDisabled=(disabled:boolean)=>enterControls.forEach(control=>{control.disabled=disabled});

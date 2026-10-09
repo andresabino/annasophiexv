@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Invitation from '../../components/Invitation.astro';
 import '../../styles/rsvp-age.css';
 import {siteState} from '../../lib/config';
 import {findInvitation,saveResponse,RsvpError} from '../../lib/rsvp';
@@ -15,7 +16,8 @@ try{
   const form=await limitedForm(Astro.request),participants=form.getAll('participant');
   const ageBands=participants.map((_,index)=>form.get(`age_band_${index}`));
   await saveResponse(token,{status:form.get('status'),quantity:form.get('quantity'),participants,ageBands,phone:form.get('phone'),notes:form.get('notes')});
-  return Astro.redirect(Astro.url.pathname+'?saved=1',303);
+  const savedUrl=new URL(Astro.url);savedUrl.searchParams.set('saved','1');savedUrl.hash='rsvp';
+  return Astro.redirect(savedUrl.pathname+savedUrl.search+savedUrl.hash,303);
  }
  if(process.env.DATABASE_URL)invitation=await findInvitation(token);else unavailable=true;
  saved=Astro.url.searchParams.get('saved')==='1';
@@ -28,9 +30,11 @@ if(!invitation&&!unavailable&&!error)Astro.response.status=404;
 if(unavailable)Astro.response.status=503;
 const deadlineClosed=!!invitation?.rsvp_deadline&&Date.now()>Date.parse(invitation.rsvp_deadline)&&!invitation.status;
 const closed=state.phase==='POST_EVENT'||!open,count=invitation?.confirmed_guests||1,notYet=rsvpNotYetOpen(state.config);
+const cinematic=state.phase==='INVITATION'||state.phase==='EVENT_DAY';
 ---
-<Layout {...state} privatePage title="Seu convite pessoal — Anna Sophie XV">
- <section class="rsvp-wrap"><div class="rsvp-card"><p class="eyebrow">UM CONVITE RESERVADO A VOCÊ</p>
+<Layout {...state} privatePage title="Seu convite pessoal — Anna Sophie XV" hero={cinematic} cinematic={cinematic} rsvpTarget="#rsvp">
+ {cinematic&&<Invitation {...state}/>}
+ <section id="rsvp" class="rsvp-wrap"><div class="rsvp-card"><p class="eyebrow">UM CONVITE RESERVADO A VOCÊ</p>
  {unavailable?<><h1>Seu convite merece atenção.</h1><p>Não foi possível consultar as confirmações agora. Tente novamente em alguns instantes.</p></>
  :!invitation?<><h1>Este convite não está mais disponível para confirmação.</h1><p>Confira o link pessoal recebido. Se precisar, solicite novamente seu convite à família.</p><a class="button outline" href="/">Voltar ao início</a></>
  :deadlineClosed?<><h1>O prazo para confirmação deste convite foi encerrado.</h1><p>A família poderá reabrir o prazo quando necessário.</p><a class="button outline" href="/">Voltar ao início</a></>

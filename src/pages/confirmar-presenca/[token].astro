@@ -33,7 +33,7 @@ const closed=state.phase==='POST_EVENT'||!open,count=invitation?.confirmed_guest
 const cinematic=state.phase==='INVITATION'||state.phase==='EVENT_DAY';
 ---
 <Layout {...state} privatePage title="Seu convite pessoal — Anna Sophie XV" hero={cinematic} cinematic={cinematic} rsvpTarget="#rsvp">
- {cinematic&&<Invitation {...state}/>}
+ {cinematic&&<Invitation {...state} rsvpTarget="#rsvp"/>}
  <section id="rsvp" class="rsvp-wrap"><div class="rsvp-card"><p class="eyebrow">UM CONVITE RESERVADO A VOCÊ</p>
  {unavailable?<><h1>Seu convite merece atenção.</h1><p>Não foi possível consultar as confirmações agora. Tente novamente em alguns instantes.</p></>
  :!invitation?<><h1>Este convite não está mais disponível para confirmação.</h1><p>Confira o link pessoal recebido. Se precisar, solicite novamente seu convite à família.</p><a class="button outline" href="/">Voltar ao início</a></>
